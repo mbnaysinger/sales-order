@@ -1,9 +1,15 @@
 package br.org.order.api.v1.rest;
 
 import br.org.fiergs.common.model.exception.AccessForbiddenException;
+import br.org.order.api.v1.converter.BillingDataConverter;
+import br.org.order.api.v1.dto.order.BillingDataDTO;
+import br.org.order.domain.model.BillingData;
+import br.org.order.domain.model.OrderProcedureReturn;
+import br.org.order.domain.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
@@ -13,19 +19,24 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController("SalesOrderControllerV1")
-@RequestMapping("/v1")
+@RequestMapping("/order")
 public class SalesOrderController {
     private static final Logger LOGGER = LoggerFactory.getLogger(SalesOrderController.class);
     private static final String AUTHORIZATION_ERROR = "Acesso negado";
 
     private String apiKey;
+    private final OrderService orderService;
+    private final BillingDataConverter billingDataConverter;
 
-    public SalesOrderController(@Value("${app.bank-slip-api-key}") String apiKey) {
+    public SalesOrderController(@Value("${app.bank-slip-api-key}") String apiKey,
+                                OrderService orderService) {
         this.apiKey = apiKey;
+        this.orderService = orderService;
+        this.billingDataConverter = new BillingDataConverter();
     }
 
-    @GetMapping("/orders")
-    public Mono<List<Map<String, String>>> getMockBankSlips(@RequestParam Optional<Boolean> open) {
+    @GetMapping("/list")
+    public Mono<List<Map<String, String>>> getMockBankSlips(@RequestParam ("just_open") Optional<Boolean> justOpen) {
         List<Map<String, String>> mockList = Arrays.asList(
                 createMockRecord("1", "8232681942", "SOF", "Boleto DNS", "28000640190124160", "000043127/NFS", "F58773", "A"),
                 createMockRecord("2", "8232664683", "CDE", "Boleto CDE", "28000640190124150", "000043128/NFS", "F58770", "A"),
@@ -38,7 +49,7 @@ public class SalesOrderController {
         List<Map<String, String>> filteredList = mockList;
 
         // Se a flag estiver presente e for verdadeira, filtrar para apenas status "A"
-        if (open.isPresent() && open.get()) {
+        if (justOpen.isPresent() && justOpen.get()) {
             filteredList = mockList.stream()
                     .filter(order -> "A".equals(order.get("status")))
                     .collect(Collectors.toList());
@@ -84,5 +95,14 @@ public class SalesOrderController {
                         return Mono.error(new IllegalArgumentException("Erro ao processar arquivo"));
                     }
                 });
+    }
+
+    @PostMapping("/generate")
+    public Mono<ResponseEntity<OrderProcedureReturn>> insereTitulo(@RequestBody BillingDataDTO billingDataDTO) {
+        BillingData billingData = billingDataConverter.convertToEntity(billingDataDTO);
+
+        return orderService.insereTitulo(billingData)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.noContent().build());
     }
 }

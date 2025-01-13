@@ -34,7 +34,7 @@ public class SwaggerConfig {
                 .groupName(groupName)
                 .apiInfo(buildApiInfo(version, applicationName))
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.pedidovenda.pedido.api." + version))
+                .apis(RequestHandlerSelectors.basePackage("br.org.order.api." + version))
                 .paths(PathSelectors.any())
                 .build()
                 .pathMapping("/");
