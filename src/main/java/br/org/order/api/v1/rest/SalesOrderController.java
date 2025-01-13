@@ -36,7 +36,7 @@ public class SalesOrderController {
     }
 
     @GetMapping("/list")
-    public Mono<List<Map<String, String>>> getMockBankSlips(@RequestParam ("just_open") Optional<Boolean> justOpen) {
+    public Mono<List<Map<String, String>>> getMockBankSlips(@RequestParam("just_open") Optional<Boolean> justOpen) {
         List<Map<String, String>> mockList = Arrays.asList(
                 createMockRecord("1", "8232681942", "SOF", "Boleto DNS", "28000640190124160", "000043127/NFS", "F58773", "A"),
                 createMockRecord("2", "8232664683", "CDE", "Boleto CDE", "28000640190124150", "000043128/NFS", "F58770", "A"),
@@ -98,7 +98,7 @@ public class SalesOrderController {
     }
 
     @PostMapping("/generate")
-    public Mono<ResponseEntity<OrderProcedureReturn>> insereTitulo(@RequestBody BillingDataDTO billingDataDTO) {
+    public Mono<ResponseEntity<OrderProcedureReturn>> insereTitulo2(@RequestBody BillingDataDTO billingDataDTO) {
         BillingData billingData = billingDataConverter.convertToEntity(billingDataDTO);
 
         return orderService.insereTitulo(billingData)

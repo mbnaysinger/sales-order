@@ -1,17 +1,17 @@
 package br.org.order.infrastructure.adapter;
 
+import br.org.order.domain.model.BankSlipDetail;
+import br.org.order.domain.model.BankSlipItem;
 import br.org.order.domain.model.BillingData;
 import br.org.order.domain.model.OrderProcedureReturn;
 import br.org.order.domain.port.OrderProcedurePort;
-import br.org.order.infrastructure.jpa.entity.OrderProcedureReturnEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.sql.Array;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.Types;
+import java.sql.*;
+import java.util.Objects;
 
 @Component
 public class OrderProcedureAdapter implements OrderProcedurePort {
@@ -22,54 +22,101 @@ public class OrderProcedureAdapter implements OrderProcedurePort {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override
     public Mono<OrderProcedureReturn> insereTitulo(BillingData bd) {
-        return Mono.fromCallable(() -> {
-            Connection connection = jdbcTemplate.getDataSource().getConnection();
-            CallableStatement callableStatement = connection
-                    .prepareCall("{CALL APIMS_TITULOS_COBRANCA_PCK.insere_titulo(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
-
-            callableStatement.setString(1, bd.getFilial());
-            callableStatement.setString(2, bd.getC5Tipo());
-            callableStatement.setInt(3, bd.getId1Empresa());
-            callableStatement.setInt(4, bd.getId2Empresa());
-            callableStatement.setInt(5, bd.getId3Empresa());
-            callableStatement.setString(6, bd.getCondPgto());
-            callableStatement.setString(7, bd.getFatAut());
-            callableStatement.setString(8, bd.getSerie());
-            callableStatement.setString(9, bd.getSigla());
-            callableStatement.setString(10, bd.getIdcOperacao());
-            callableStatement.setString(11, bd.getIdcNatureza());
-            callableStatement.setInt(12, bd.getTipoTitulo());
-
-            Array detail = connection.createArrayOf("STRUCT", bd.getTitulos().toArray());
-            Array item = connection.createArrayOf("STRUCT", bd.getItens().toArray());
-            callableStatement.setArray(13, detail);
-            callableStatement.setArray(14, item);
-
-            callableStatement.registerOutParameter(15, Types.VARCHAR);  // p_num_titulo
-            callableStatement.registerOutParameter(16, Types.INTEGER);  // p_id_integracao
-            callableStatement.registerOutParameter(17, Types.VARCHAR);  // p_mensagem
-            callableStatement.registerOutParameter(18, Types.INTEGER);  // p_retorno
-
-            callableStatement.execute();
-
-            OrderProcedureReturnEntity entity = new OrderProcedureReturnEntity();
-            entity.setNumTitulo(callableStatement.getString(15));
-            entity.setIdIntegracao(callableStatement.getString(16));
-            entity.setMensagem(callableStatement.getString(17));
-            entity.setRetorno(callableStatement.getInt(18));
-
-            return convert(entity);
-        });
+        return Mono.fromCallable(() -> executeInsertTitulo(bd))
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
-    private OrderProcedureReturn convert(OrderProcedureReturnEntity entity) {
-        return OrderProcedureReturn.builder()
-                .numTitulo(entity.getNumTitulo())
-                .idIntegracao(entity.getIdIntegracao())
-                .mensagem(entity.getMensagem())
-                .retorno(entity.getRetorno())
-                .build();
+    private OrderProcedureReturn executeInsertTitulo(BillingData bd) throws SQLException {
+        String sql = buildSqlStatement(bd);
+
+        try (Connection connection = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
+             CallableStatement stmt = connection.prepareCall(sql)) {
+
+            stmt.registerOutParameter(1, Types.VARCHAR);  // num_titulo
+            stmt.registerOutParameter(2, Types.NUMERIC);  // id_integra
+            stmt.registerOutParameter(3, Types.VARCHAR);  // mensagem
+            stmt.registerOutParameter(4, Types.NUMERIC);  // retorno
+            stmt.registerOutParameter(5, Types.VARCHAR);  // possiveis_falhas
+
+            stmt.execute();
+
+            String errorMessage = stmt.getString(5);
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                throw new RuntimeException("Erro na execução da procedure: " + errorMessage);
+            }
+
+            return OrderProcedureReturn.builder()
+                    .numTitulo(stmt.getString(1))
+                    .idIntegracao(stmt.getString(2))
+                    .mensagem(stmt.getString(3))
+                    .retorno(stmt.getInt(4))
+                    .build();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao executar procedure Oracle: " + e.getMessage(), e);
+        }
+    }
+
+    private String buildSqlStatement(BillingData bd) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("DECLARE ")
+                .append("    v_retorno NUMBER; ")
+                .append("    v_mensagem VARCHAR2(4000); ")
+                .append("    v_num_titulo VARCHAR2(200); ")
+                .append("    v_id_integra NUMBER; ")
+                .append("    v_titulos dda_iif.iif_pedido_venda_pck.tb_tit := dda_iif.iif_pedido_venda_pck.tb_tit(); ")
+                .append("    v_itens dda_iif.iif_pedido_venda_pck.tb_itens := dda_iif.iif_pedido_venda_pck.tb_itens(); ")
+                .append("    v_sigla VARCHAR2(8) := '").append(bd.getSigla()).append("'; ")
+                .append("BEGIN ");
+
+        for (int i = 0; i < bd.getItens().size(); i++) {
+            BankSlipItem item = bd.getItens().get(i);
+            sql.append("    v_itens(").append(i+1).append(").c6_filial := '").append(item.getC6Filial()).append("'; ")
+                    .append("    v_itens(").append(i+1).append(").c6_item := ").append(item.getC6Item()).append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_num := ").append(item.getC6Num() == null ? "null" : "'" + item.getC6Num() + "'").append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_produto := ").append(item.getC6Produto()).append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_qtdven := ").append(item.getC6Qtdven()).append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_prcven := ").append(item.getC6Prcven()).append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_valor := ").append(item.getC6Valor()).append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_qtdlib := ").append(item.getC6Qtdlib()).append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_tes := '").append(item.getC6Tes()).append("'; ")
+                    .append("    v_itens(").append(i+1).append(").c6_xconta := '").append(item.getC6Xconta()).append("'; ")
+                    .append("    v_itens(").append(i+1).append(").c6_xcc := '").append(item.getC6Xcc()).append("'; ")
+                    .append("    v_itens(").append(i+1).append(").c6_xitemc := '").append(item.getC6Xitemc()).append("'; ")
+                    .append("    v_itens(").append(i+1).append(").c6_xclvl := '").append(item.getC6Xclvl()).append("'; ");
+        }
+
+        for (int i = 0; i < bd.getTitulos().size(); i++) {
+            BankSlipDetail titulo = bd.getTitulos().get(i);
+            sql.append("    v_titulos(").append(i+1).append(").parcela := ").append(titulo.getParcela()).append("; ")
+                    .append("    v_titulos(").append(i+1).append(").dt_vcto := TO_DATE('").append(titulo.getDtVcto()).append("', 'YYYY-MM-DD'); ");
+        }
+
+        sql.append("    dda_apims.apims_titulos_cobranca_pck.insere_titulo( ")
+                .append("        v_sigla, ")
+                .append("        '").append(bd.getC5Tipo()).append("', ")
+                .append("        ").append(bd.getId1Empresa()).append(", ")
+                .append("        ").append(bd.getId2Empresa()).append(", ")
+                .append("        ").append(bd.getId3Empresa()).append(", ")
+                .append("        '").append(bd.getCondPgto()).append("', ")
+                .append("        '").append(bd.getFatAut()).append("', ")
+                .append("        '").append(bd.getSerie()).append("', ")
+                .append("        '").append(bd.getSigla()).append("', ")
+                .append("        '").append(bd.getIdcOperacao()).append("', ")
+                .append("        '").append(bd.getIdcNatureza()).append("', ")
+                .append("        ").append(bd.getTipoTitulo()).append(", ")
+                .append("        v_titulos, v_itens, v_num_titulo, v_id_integra, v_mensagem, v_retorno ")
+                .append("    ); ")
+                .append("    ? := v_num_titulo; ")
+                .append("    ? := v_id_integra; ")
+                .append("    ? := v_mensagem; ")
+                .append("    ? := v_retorno; ")
+                .append("EXCEPTION ")
+                .append("    WHEN OTHERS THEN ")
+                .append("        ? := SQLERRM || ' - ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE; ")
+                .append("        RAISE; ")
+                .append("END;");
+
+        return sql.toString();
     }
 }
