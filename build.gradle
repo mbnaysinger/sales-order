@@ -4,7 +4,7 @@ plugins {
 	id 'org.springframework.boot' version '2.2.13.RELEASE'
 }
 
-group = 'com.pedidovenda'
+group = 'br.org.order'
 version = '0.0.1-SNAPSHOT'
 
 sourceCompatibility = JavaVersion.VERSION_11
