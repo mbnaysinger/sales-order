@@ -10,10 +10,13 @@ import com.azure.storage.blob.models.BlobStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 @Component
@@ -40,7 +43,7 @@ public class AzureBlobStorageAdapter implements BlobStoragePort {
     }
 
     @Override
-    public Mono<ByteBuffer> downloadFile(String containerName, String blobName) {
+    public Mono<InputStream> downloadFile(String blobName, String containerName) {
         LOGGER.info("Iniciando download do blob: {} do container: {}", blobName, containerName);
         BlobAsyncClient blobAsyncClient = getContainerClient(containerName).getBlobAsyncClient(blobName);
 
@@ -53,9 +56,9 @@ public class AzureBlobStorageAdapter implements BlobStoragePort {
                         LOGGER.info("Blob {} encontrado. Iniciando download.", blobName);
                         return blobAsyncClient.downloadContent()
                                 .map(binaryData -> {
-                                    ByteBuffer byteBuffer = binaryData.toByteBuffer();
-                                    LOGGER.info("Download concluído para {}. Tamanho: {} bytes", blobName, byteBuffer.remaining());
-                                    return byteBuffer;
+                                    byte[] data = binaryData.toBytes();
+                                    LOGGER.info("Download concluído para {}. Tamanho: {} bytes", blobName, data.length);
+                                    return (InputStream) new ByteArrayInputStream(data);
                                 });
                     } else {
                         LOGGER.error("Blob {} não encontrado no container {}", blobName, containerName);
@@ -89,6 +92,13 @@ public class AzureBlobStorageAdapter implements BlobStoragePort {
                     }
                     return Flux.error(e);
                 });
+    }
+
+    @Override
+    public Mono<ByteBuffer> downloadFileByte(String blobName, String containerName) {
+        BlobAsyncClient blobAsyncClient = getContainerClient(containerName).getBlobAsyncClient(blobName);
+        return blobAsyncClient.downloadContent()
+                .map(BinaryData::toByteBuffer);
     }
 
 }

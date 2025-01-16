@@ -1,5 +1,6 @@
 package br.org.order.domain.service;
 
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import br.org.order.domain.port.BlobStoragePort;
@@ -35,11 +36,15 @@ public class BlobStorageService {
         return blobStoragePort.uploadFile(fileName, content, contBankSlip);
     }
 
-    public Mono<ByteBuffer> downloadInvoice(String blobName) {
+    public Mono<InputStream> downloadInvoice(String blobName) {
         return blobStoragePort.downloadFile(blobName, contInvoice);
     }
 
-    public Mono<ByteBuffer> downloadBankSlip(String blobName) {
+    public Mono<ByteBuffer> downloadInvoiceByte(String blobName) {
+        return blobStoragePort.downloadFileByte(blobName, contInvoice);
+    }
+
+    public Mono<InputStream> downloadBankSlip(String blobName) {
         return blobStoragePort.downloadFile(blobName, contBankSlip);
     }
 
