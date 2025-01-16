@@ -1,85 +1,53 @@
 package br.org.order.domain.service;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 
-import com.azure.storage.blob.*;
-import com.azure.storage.blob.models.ParallelTransferOptions;
+import br.org.order.domain.port.BlobStoragePort;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.azure.storage.blob.models.BlobItem;
-import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import com.azure.storage.blob.BlobContainerAsyncClient;
-import com.azure.storage.blob.models.BlobStorageException;
 
 @Service
 public class BlobStorageService {
 
-    private final BlobServiceAsyncClient blobServiceAsyncClient;
-    private final String containerName;
+    private final BlobStoragePort blobStoragePort;
+    private final String contInvoice;
+    private final String contBankSlip;
 
     @Autowired
-    public BlobStorageService(BlobServiceAsyncClient blobServiceAsyncClient, String containerName) {
-        this.blobServiceAsyncClient = blobServiceAsyncClient;
-        this.containerName = containerName;
+    public BlobStorageService(BlobStoragePort blobStoragePort,
+                                  @Value("${azure.storage.container-invoice}") String contInvoice,
+                                  @Value("${azure.storage.container-bank-slip}") String contBankSlip) {
+        this.blobStoragePort = blobStoragePort;
+        this.contInvoice = contInvoice;
+        this.contBankSlip = contBankSlip;
     }
 
-    private BlobContainerAsyncClient getContainerClient(String cn) {
-        return blobServiceAsyncClient.getBlobContainerAsyncClient(containerName);
+    public Mono<String> uploadInvoice(String fileName, byte[] content) {
+        return blobStoragePort.uploadFile(fileName, content, contInvoice);
     }
 
-    public Mono<String> uploadFile(MultipartFile file) throws IOException {
-        return uploadFile(file, containerName);
+    public Mono<String> uploadBankSlip(String fileName, byte[] content) {
+        return blobStoragePort.uploadFile(fileName, content, contBankSlip);
     }
 
-    public Mono<String> uploadFile(MultipartFile file, String containerName) throws IOException {
-        ReadableByteChannel channel = Channels.newChannel(file.getInputStream());
-
-        Flux<ByteBuffer> fileContentFlux = Flux.generate(
-                sink -> {
-                    ByteBuffer buffer = ByteBuffer.allocate(4096);
-                    try {
-                        int bytesRead = channel.read(buffer);
-                        if (bytesRead == -1) {
-                            sink.complete();
-                        } else {
-                            buffer.flip();
-                            sink.next(buffer);
-                            buffer.clear();
-                        }
-                    } catch (IOException e) {
-                        sink.error(e);
-                    }
-                });
-
-        return getContainerClient(containerName)
-                .getBlobAsyncClient(file.getOriginalFilename())
-                .upload(fileContentFlux, new ParallelTransferOptions()
-                        .setBlockSizeLong(4L * 1024L * 1024L)
-                        .setMaxConcurrency(5), true)
-                .then(Mono.just("File uploaded successfully."));
+    public Mono<ByteBuffer> downloadInvoice(String blobName) {
+        return blobStoragePort.downloadFile(blobName, contInvoice);
     }
 
-    public Flux<ByteBuffer> downloadFile(String containerName, String blobName) {
-        BlobAsyncClient blobAsyncClient = getContainerClient(containerName).getBlobAsyncClient(blobName);
-        return blobAsyncClient.downloadStream();
+    public Mono<ByteBuffer> downloadBankSlip(String blobName) {
+        return blobStoragePort.downloadFile(blobName, contBankSlip);
     }
 
-    public Mono<Void> deleteFile(String containerName, String blobName) {
-        return getContainerClient(containerName)
-                .getBlobAsyncClient(blobName)
-                .delete()
-                .onErrorResume(BlobStorageException.class, e -> Mono.empty());
+    public Flux<BlobItem> listInvoices() {
+        return blobStoragePort.listBlobs(contInvoice);
     }
 
-    public Flux<BlobItem> listBlobs(String containerName) {
-        return getContainerClient(containerName)
-                .listBlobs();
+    public Flux<BlobItem> listBankSlips() {
+        return blobStoragePort.listBlobs(contBankSlip);
     }
 }

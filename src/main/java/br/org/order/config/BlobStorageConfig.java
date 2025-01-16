@@ -13,7 +13,7 @@ public class BlobStorageConfig {
     @Value("${azure.storage.connection-string}")
     private String connectionString;
 
-    @Value("${azure.storage.container-name}")
+    @Value("${azure.storage.container-invoice}")
     private String containerName;
 
     @Bean

@@ -5,16 +5,32 @@ import br.org.order.api.v1.converter.BillingDataConverter;
 import br.org.order.api.v1.dto.order.BillingDataDTO;
 import br.org.order.domain.model.BillingData;
 import br.org.order.domain.model.OrderProcedureReturn;
+import br.org.order.domain.service.BlobStorageService;
 import br.org.order.domain.service.OrderService;
+import com.azure.storage.blob.models.BlobItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,11 +43,13 @@ public class SalesOrderController {
     private String apiKey;
     private final OrderService orderService;
     private final BillingDataConverter billingDataConverter;
+    private final BlobStorageService blobService;
 
     public SalesOrderController(@Value("${app.bank-slip-api-key}") String apiKey,
-                                OrderService orderService) {
+                                OrderService orderService, BlobStorageService blobService) {
         this.apiKey = apiKey;
         this.orderService = orderService;
+        this.blobService = blobService;
         this.billingDataConverter = new BillingDataConverter();
     }
 
@@ -72,37 +90,89 @@ public class SalesOrderController {
         return record;
     }
 
-    @PostMapping("/invoice")
-    public Mono<String> uploadFile(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("id") String id,
-            @RequestHeader("X-API-Key") String apiKeyParam) {
-
-        return Mono.justOrEmpty(apiKey.equals(apiKeyParam) ? apiKey : null)
-                .switchIfEmpty(Mono.error(new AccessForbiddenException("Autorização inválida")))
-                .flatMap(validApiKey -> {
-                    try {
-                        // Ler o arquivo recebido
-                        byte[] fileBytes = file.getBytes();
-
-                        LOGGER.info("Arquivo recebido: " + file.getOriginalFilename() + " com ID: " + id);
-
-                        // Aqui, você pode proceder com o processamento que necessitar, como salvar o arquivo
-
-                        return Mono.just("Arquivo recebido com sucesso!");
-                    } catch (IOException e) {
-                        LOGGER.error("Erro ao processar o arquivo: {}", e.getMessage());
-                        return Mono.error(new IllegalArgumentException("Erro ao processar arquivo"));
-                    }
-                });
-    }
-
     @PostMapping("/generate")
-    public Mono<ResponseEntity<OrderProcedureReturn>> insereTitulo2(@RequestBody BillingDataDTO billingDataDTO) {
+    public Mono<ResponseEntity<OrderProcedureReturn>> billing(@Valid @RequestBody BillingDataDTO billingDataDTO) {
         BillingData billingData = billingDataConverter.convertToEntity(billingDataDTO);
 
         return orderService.insereTitulo(billingData)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.noContent().build());
+    }
+
+    @PostMapping(value = "/invoice", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<String> uploadInvoice(
+            @RequestPart("file") Mono<FilePart> filePart,
+            @RequestPart("billingId") String billingId,
+            @RequestHeader("X-API-Key") String apiKeyParam) {
+
+        LOGGER.info("Recebendo requisição para billingId: {}", billingId);
+
+        return Mono.justOrEmpty(apiKey.equals(apiKeyParam) ? apiKey : null)
+                .switchIfEmpty(Mono.error(new AccessForbiddenException(AUTHORIZATION_ERROR)))
+                .flatMap(validApiKey -> filePart
+                        .flatMap(part -> {
+                            String originalFilename = part.filename();
+                            String fileName = generateFileName(billingId, originalFilename);
+                            LOGGER.info("Processando arquivo: {} com ID: {}", fileName, billingId);
+
+                            return part.content()
+                                    .reduce(DataBuffer::write)
+                                    .map(buffer -> {
+                                        byte[] bytes = new byte[buffer.readableByteCount()];
+                                        buffer.read(bytes);
+                                        DataBufferUtils.release(buffer);
+                                        return bytes;
+                                    })
+                                    .flatMap(fileBytes -> blobService.uploadInvoice(fileName, fileBytes)
+                                            .doOnSuccess(result -> LOGGER.info("Arquivo enviado com sucesso: {}", fileName))
+                                            .doOnError(error -> LOGGER.error("Erro ao enviar arquivo: {}", error.getMessage()))
+                                    );
+                        })
+                )
+                .onErrorResume(IOException.class, e -> {
+                    LOGGER.error("Erro ao ler o arquivo: {}", e.getMessage());
+                    return Mono.error(new IllegalArgumentException("Erro ao processar arquivo"));
+                });
+    }
+
+    private String generateFileName(String id, String originalFilename) {
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        return "invoice_" + id + "_" + System.currentTimeMillis() + extension;
+    }
+
+    @GetMapping("/document/{fileName}")
+    public Mono<ResponseEntity<DataBuffer>> downloadDocument(@PathVariable String fileName) {
+        String decodedFileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8);
+        LOGGER.info("Iniciando download do arquivo: {}", decodedFileName);
+
+        return blobService.downloadInvoice(decodedFileName)
+                .doOnSubscribe(subscription -> LOGGER.info("Iniciando download do blob: {}", decodedFileName))
+                .doOnNext(byteBuffer -> LOGGER.info("ByteBuffer recebido para {}, tamanho: {}", decodedFileName, byteBuffer.remaining()))
+                .map(this::convertToDataBuffer)
+                .map(dataBuffer -> {
+                    LOGGER.info("DataBuffer criado para {}, tamanho: {}", decodedFileName, dataBuffer.readableByteCount());
+                    return ResponseEntity.ok()
+                            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + decodedFileName + "\"")
+                            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                            .body(dataBuffer);
+                })
+                .doOnSuccess(result -> LOGGER.info("Download do arquivo {} concluído com sucesso", decodedFileName))
+                .doOnError(error -> LOGGER.error("Erro ao baixar arquivo {}: {}", decodedFileName, error.getMessage(), error));
+    }
+
+    private DataBuffer convertToDataBuffer(ByteBuffer byteBuffer) {
+        byte[] bytes = new byte[byteBuffer.remaining()];
+        byteBuffer.get(bytes);
+        return new DefaultDataBufferFactory().wrap(bytes);
+    }
+
+    @GetMapping("/invoices")
+    public Flux<String> listInvoices() {
+        LOGGER.info("Iniciando listagem de blobs para o container");
+
+        return blobService.listInvoices()
+                .map(BlobItem::getName)
+                .doOnComplete(() -> LOGGER.info("Listagem de invoices concluída"))
+                .doOnError(error -> LOGGER.error(error.getMessage()));
     }
 }
