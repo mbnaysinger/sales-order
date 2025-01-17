@@ -41,6 +41,8 @@ public class OrderProcedureAdapter implements OrderProcedurePort {
 
             stmt.execute();
 
+            System.out.println(stmt.getString(5));
+
             String errorMessage = stmt.getString(5);
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 throw new RuntimeException("Erro na execução da procedure: " + errorMessage);
@@ -66,7 +68,7 @@ public class OrderProcedureAdapter implements OrderProcedurePort {
                 .append("    v_id_integra NUMBER; ")
                 .append("    v_titulos dda_iif.iif_pedido_venda_pck.tb_tit := dda_iif.iif_pedido_venda_pck.tb_tit(); ")
                 .append("    v_itens dda_iif.iif_pedido_venda_pck.tb_itens := dda_iif.iif_pedido_venda_pck.tb_itens(); ")
-                .append("    v_sigla VARCHAR2(8) := '").append(bd.getSigla()).append("'; ")
+                .append("    v_sigla VARCHAR2(8) := '").append(bd.getFilial()).append("'; ")
                 .append("BEGIN ");
 
         for (int i = 0; i < bd.getItens().size(); i++) {
@@ -89,7 +91,9 @@ public class OrderProcedureAdapter implements OrderProcedurePort {
         for (int i = 0; i < bd.getTitulos().size(); i++) {
             BankSlipDetail titulo = bd.getTitulos().get(i);
             sql.append("    v_titulos(").append(i+1).append(").parcela := ").append(titulo.getParcela()).append("; ")
-                    .append("    v_titulos(").append(i+1).append(").dt_vcto := TO_DATE('").append(titulo.getDtVcto()).append("', 'YYYY-MM-DD'); ");
+                    .append("    v_titulos(").append(i+1).append(").dt_vcto := TO_DATE('").append(titulo.getDtVcto()).append("', 'DD-MM-YYYY'); ")
+                    .append("    v_titulos(").append(i+1).append(").parc_num := ").append(titulo.getNumParc()).append("; ");
+
         }
 
         sql.append("    dda_apims.apims_titulos_cobranca_pck.insere_titulo( ")

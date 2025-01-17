@@ -1,22 +1,55 @@
 package br.org.order.api.v1.dto.order;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class BillingDataDTO {
 
+    @NotBlank(message = "Filial não pode ser vazio")
     private String filial;
+
+    @NotBlank(message = "C5 Tipo não pode ser vazio")
     private String c5Tipo;
+
+    @NotNull(message = "ID1 da Empresa não pode ser nulo")
     private Integer id1Empresa;
+
+    @NotNull(message = "ID2 da Empresa não pode ser nulo")
     private Integer id2Empresa;
+
+    @NotNull(message = "ID3 da Empresa não pode ser nulo")
     private Integer id3Empresa;
+
+    @NotBlank(message = "Condição de Pagamento não pode ser vazio")
     private String condPgto;
+
+    @NotBlank(message = "Faturamento Automático não pode ser vazio")
     private String fatAut;
+
+    @NotBlank(message = "Série não pode ser vazio")
     private String serie;
+
+    @NotBlank(message = "Sigla não pode ser vazio")
     private String sigla;
+
+    @NotBlank(message = "IDC Operação não pode ser vazio")
     private String idcOperacao;
+
+    @NotBlank(message = "IDC Natureza não pode ser vazio")
     private String idcNatureza;
+
+    @NotNull(message = "Tipo de Título não pode ser nulo")
     private Integer tipoTitulo;
+
+    @NotEmpty(message = "Lista de Títulos não pode ser vazia")
+    @Valid
     private List<BankSlipDetailDTO> titulos;
+
+    @NotEmpty(message = "Lista de Itens não pode ser vazia")
+    @Valid
     private List<BankSlipItemDTO> itens;
 
     public String getFilial() {

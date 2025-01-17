@@ -9,6 +9,7 @@ public class BankSlipDetailConverter {
         return new BankSlipDetail.Builder()
                 .parcela(detailDTO.getParcela())
                 .dtVcto(detailDTO.getDtVcto())
+                .numParc(detailDTO.getNumParc())
                 .build();
     }
 }
