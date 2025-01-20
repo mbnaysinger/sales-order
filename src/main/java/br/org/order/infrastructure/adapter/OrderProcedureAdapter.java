@@ -10,7 +10,10 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Objects;
 
 @Component
@@ -73,7 +76,7 @@ public class OrderProcedureAdapter implements OrderProcedurePort {
 
         for (int i = 0; i < bd.getItens().size(); i++) {
             BankSlipItem item = bd.getItens().get(i);
-            sql.append("    v_itens(").append(i+1).append(").c6_filial := '").append(item.getC6Filial()).append("'; ")
+            sql.append("    v_itens(").append(i+1).append(").c6_filial := '").append(bd.getFilial()).append("'; ")
                     .append("    v_itens(").append(i+1).append(").c6_item := ").append(item.getC6Item()).append("; ")
                     .append("    v_itens(").append(i+1).append(").c6_num := ").append(item.getC6Num() == null ? "null" : "'" + item.getC6Num() + "'").append("; ")
                     .append("    v_itens(").append(i+1).append(").c6_produto := ").append(item.getC6Produto()).append("; ")
@@ -99,9 +102,9 @@ public class OrderProcedureAdapter implements OrderProcedurePort {
         sql.append("    dda_apims.apims_titulos_cobranca_pck.insere_titulo( ")
                 .append("        v_sigla, ")
                 .append("        '").append(bd.getC5Tipo()).append("', ")
-                .append("        ").append(bd.getId1Empresa()).append(", ")
-                .append("        ").append(bd.getId2Empresa()).append(", ")
-                .append("        ").append(bd.getId3Empresa()).append(", ")
+                .append("        ").append(bd.getId1Pessoa()).append(", ")
+                .append("        ").append(bd.getId2Pessoa()).append(", ")
+                .append("        ").append(bd.getId3Pessoa()).append(", ")
                 .append("        '").append(bd.getCondPgto()).append("', ")
                 .append("        '").append(bd.getFatAut()).append("', ")
                 .append("        '").append(bd.getSerie()).append("', ")
@@ -121,6 +124,7 @@ public class OrderProcedureAdapter implements OrderProcedurePort {
                 .append("        RAISE; ")
                 .append("END;");
 
+        System.out.println("Procedure: " + sql.toString());
         return sql.toString();
     }
 }

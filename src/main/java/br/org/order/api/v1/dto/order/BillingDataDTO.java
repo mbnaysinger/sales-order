@@ -8,179 +8,199 @@ import java.util.List;
 
 public class BillingDataDTO {
 
-    @NotBlank(message = "Filial não pode ser vazio")
-    private String filial;
+    @NotBlank(message = "correlationId não pode ser vazio")
+    private String correlationId;
 
-    @NotBlank(message = "C5 Tipo não pode ser vazio")
-    private String c5Tipo;
+    @NotBlank(message = "branchNumber (Filial) não pode ser vazio")
+    private String branchNumber;
 
-    @NotNull(message = "ID1 da Empresa não pode ser nulo")
-    private Integer id1Empresa;
+    @NotBlank(message = "saleOrderType (C5Tipo) não pode ser vazio")
+    private String saleOrderType;
 
-    @NotNull(message = "ID2 da Empresa não pode ser nulo")
-    private Integer id2Empresa;
+    @NotNull(message = "taxpayerId (Dados do Pagador) não pode ser nulo")
+    private String taxpayerId;
 
-    @NotNull(message = "ID3 da Empresa não pode ser nulo")
-    private Integer id3Empresa;
+    @NotBlank(message = "paymentCondition (Condição de Pagamento) não pode ser vazio")
+    private String paymentCondition;
 
-    @NotBlank(message = "Condição de Pagamento não pode ser vazio")
-    private String condPgto;
-
-    @NotBlank(message = "Faturamento Automático não pode ser vazio")
-    private String fatAut;
+    @NotBlank(message = "automatedInvoicing (Faturamento Automático não pode ser vazio")
+    private String automaticInvoicing;
 
     @NotBlank(message = "Série não pode ser vazio")
-    private String serie;
+    private String series;
 
-    @NotBlank(message = "Sigla não pode ser vazio")
-    private String sigla;
+    @NotBlank(message = "sourceSystem (Sigla da aplicação de origem) não pode ser vazio")
+    private String sourceSystem;
 
-    @NotBlank(message = "IDC Operação não pode ser vazio")
-    private String idcOperacao;
+    @NotBlank(message = "operationNumber (Operação) não pode ser vazio")
+    private String operationNumber;
 
-    @NotBlank(message = "IDC Natureza não pode ser vazio")
-    private String idcNatureza;
+    @NotBlank(message = "financialNature (IDC Natureza) não pode ser vazio")
+    private String financialNature;
 
-    @NotNull(message = "Tipo de Título não pode ser nulo")
-    private Integer tipoTitulo;
+    @NotNull(message = "finSecuritiesType (Tipo de Título) não pode ser nulo")
+    private Integer finSecuritiesType;
+
+    private InstructionsDTO instructions;
 
     @NotEmpty(message = "Lista de Títulos não pode ser vazia")
     @Valid
-    private List<BankSlipDetailDTO> titulos;
+    private List<BankSlipDetailDTO> financialSecurities;
 
     @NotEmpty(message = "Lista de Itens não pode ser vazia")
     @Valid
-    private List<BankSlipItemDTO> itens;
+    private List<BankSlipItemDTO> items;
 
-    public String getFilial() {
-        return filial;
+    private String paymentStatusCallbackUrl;
+    private String availableInvoiceCallbackUrl;
+
+    public String getCorrelationId() {
+        return correlationId;
     }
 
-    public void setFilial(String filial) {
-        this.filial = filial;
+    public void setCorrelationId (String correlationId) {
+        this.correlationId = correlationId;
     }
 
-    public String getC5Tipo() {
-        return c5Tipo;
+    public String getBranchNumber() {
+        return branchNumber;
     }
 
-    public void setC5Tipo(String c5Tipo) {
-        this.c5Tipo = c5Tipo;
+    public void setBranchNumber(String branchNumber) {
+        this.branchNumber = branchNumber;
     }
 
-    public Integer getId1Empresa() {
-        return id1Empresa;
+    public String getSaleOrderType() {
+        return saleOrderType;
     }
 
-    public void setId1Empresa(Integer id1Empresa) {
-        this.id1Empresa = id1Empresa;
+    public void setSaleOrderType(String saleOrderType) {
+        this.saleOrderType = saleOrderType;
     }
 
-    public Integer getId2Empresa() {
-        return id2Empresa;
+    public String getTaxpayerId() {
+        return taxpayerId;
     }
 
-    public void setId2Empresa(Integer id2Empresa) {
-        this.id2Empresa = id2Empresa;
+    public void setTaxpayerId(String taxpayerId) {
+        this.taxpayerId = taxpayerId;
     }
 
-    public Integer getId3Empresa() {
-        return id3Empresa;
+    public String getPaymentCondition() {
+        return paymentCondition;
     }
 
-    public void setId3Empresa(Integer id3Empresa) {
-        this.id3Empresa = id3Empresa;
+    public void setPaymentCondition(String paymentCondition) {
+        this.paymentCondition = paymentCondition;
     }
 
-    public String getCondPgto() {
-        return condPgto;
+    public String getAutomaticInvoicing() {
+        return automaticInvoicing;
     }
 
-    public void setCondPgto(String condPgto) {
-        this.condPgto = condPgto;
+    public void setAutomaticInvoicing(String automaticInvoicing) {
+        this.automaticInvoicing = automaticInvoicing;
     }
 
-    public String getFatAut() {
-        return fatAut;
+    public String getSeries() {
+        return series;
     }
 
-    public void setFatAut(String fatAut) {
-        this.fatAut = fatAut;
+    public void setSeries(String series) {
+        this.series = series;
     }
 
-    public String getSerie() {
-        return serie;
+    public String getSourceSystem() {
+        return sourceSystem;
     }
 
-    public void setSerie(String serie) {
-        this.serie = serie;
+    public void setSourceSystem(String sourceSystem) {
+        this.sourceSystem = sourceSystem;
     }
 
-    public String getSigla() {
-        return sigla;
+    public String getOperationNumber() {
+        return operationNumber;
     }
 
-    public void setSigla(String sigla) {
-        this.sigla = sigla;
+    public void setOperationNumber(String operationNumber) {
+        this.operationNumber = operationNumber;
     }
 
-    public String getIdcOperacao() {
-        return idcOperacao;
+    public String getFinancialNature() {
+        return financialNature;
     }
 
-    public void setIdcOperacao(String idcOperacao) {
-        this.idcOperacao = idcOperacao;
+    public void setFinancialNature(String financialNature) {
+        this.financialNature = financialNature;
     }
 
-    public String getIdcNatureza() {
-        return idcNatureza;
+    public Integer getFinSecuritiesType() {
+        return finSecuritiesType;
     }
 
-    public void setIdcNatureza(String idcNatureza) {
-        this.idcNatureza = idcNatureza;
+    public void setFinSecuritiesType(Integer finSecuritiesType) {
+        this.finSecuritiesType = finSecuritiesType;
     }
 
-    public Integer getTipoTitulo() {
-        return tipoTitulo;
+    public InstructionsDTO getInstructions() {
+        return instructions;
     }
 
-    public void setTipoTitulo(Integer tipoTitulo) {
-        this.tipoTitulo = tipoTitulo;
+    public void setInstructions(InstructionsDTO instructions) {
+        this.instructions = instructions;
     }
 
-    public List<BankSlipDetailDTO> getTitulos() {
-        return titulos;
+    public List<BankSlipDetailDTO> getFinancialSecurities() {
+        return financialSecurities;
     }
 
-    public void setTitulos(List<BankSlipDetailDTO> titulos) {
-        this.titulos = titulos;
+    public void setFinancialSecurities(List<BankSlipDetailDTO> financialSecurities) {
+        this.financialSecurities = financialSecurities;
     }
 
-    public List<BankSlipItemDTO> getItens() {
-        return itens;
+    public List<BankSlipItemDTO> getItems() {
+        return items;
     }
 
-    public void setItens(List<BankSlipItemDTO> itens) {
-        this.itens = itens;
+    public void setItems(List<BankSlipItemDTO> items) {
+        this.items = items;
+    }
+
+    public String getPaymentStatusCallbackUrl() {
+        return paymentStatusCallbackUrl;
+    }
+
+    public void setPaymentStatusCallbackUrl(String paymentStatusCallbackUrl) {
+        this.paymentStatusCallbackUrl = paymentStatusCallbackUrl;
+    }
+
+    public String getAvailableInvoiceCallbackUrl() {
+        return availableInvoiceCallbackUrl;
+    }
+
+    public void setAvailableInvoiceCallbackUrl(String availableInvoiceCallbackUrl) {
+        this.availableInvoiceCallbackUrl = availableInvoiceCallbackUrl;
     }
 
     @Override
     public String toString() {
         return "BillingDataDTO{" +
-                "filial='" + filial + '\'' +
-                ", c5Tipo='" + c5Tipo + '\'' +
-                ", id1Empresa=" + id1Empresa +
-                ", id2Empresa=" + id2Empresa +
-                ", id3Empresa=" + id3Empresa +
-                ", condPgto='" + condPgto + '\'' +
-                ", fatAut='" + fatAut + '\'' +
-                ", serie='" + serie + '\'' +
-                ", sigla='" + sigla + '\'' +
-                ", idcOperacao='" + idcOperacao + '\'' +
-                ", idcNatureza='" + idcNatureza + '\'' +
-                ", tipoTitulo=" + tipoTitulo +
-                ", titulos=" + titulos +
-                ", itens=" + itens +
+                "correlationId='" + correlationId + '\'' +
+                ", branchNumber='" + branchNumber + '\'' +
+                ", saleOrderType='" + saleOrderType + '\'' +
+                ", taxpayerId='" + taxpayerId + '\'' +
+                ", paymentCondition='" + paymentCondition + '\'' +
+                ", automaticInvoicing='" + automaticInvoicing + '\'' +
+                ", series='" + series + '\'' +
+                ", sourceSystem='" + sourceSystem + '\'' +
+                ", operationNumbber='" + operationNumber + '\'' +
+                ", financialNature='" + financialNature + '\'' +
+                ", finSecuritiesType=" + finSecuritiesType +
+                ", instructions=" + instructions +
+                ", financialSecurities=" + financialSecurities +
+                ", items=" + items +
+                ", paymentStatusCallbackUrl='" + paymentStatusCallbackUrl + '\'' +
+                ", availableInvoiceCallbackUrl='" + availableInvoiceCallbackUrl + '\'' +
                 '}';
     }
 }

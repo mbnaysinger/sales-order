@@ -4,6 +4,7 @@ import br.org.order.api.v1.dto.order.BillingDataDTO;
 import br.org.order.domain.model.BankSlipDetail;
 import br.org.order.domain.model.BankSlipItem;
 import br.org.order.domain.model.BillingData;
+import br.org.order.utils.TaxpayerFormatter;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,27 +20,29 @@ public class BillingDataConverter {
     }
 
     public BillingData convertToEntity(BillingDataDTO billingDataDTO) {
-        List<BankSlipDetail> titulos = billingDataDTO.getTitulos().stream()
+        TaxpayerFormatter.FormattedTaxpayer ftp = TaxpayerFormatter.format(billingDataDTO.getTaxpayerId());
+
+        List<BankSlipDetail> titulos = billingDataDTO.getFinancialSecurities().stream()
                 .map(bankSlipDetailConverter::convertToEntity)
                 .collect(Collectors.toList());
 
-        List<BankSlipItem> itens = billingDataDTO.getItens().stream()
+        List<BankSlipItem> itens = billingDataDTO.getItems().stream()
                 .map(bankSlipItemConverter::convertToEntity)
                 .collect(Collectors.toList());
 
         return new BillingData.Builder()
-                .filial(billingDataDTO.getFilial())
-                .c5Tipo(billingDataDTO.getC5Tipo())
-                .id1Empresa(billingDataDTO.getId1Empresa())
-                .id2Empresa(billingDataDTO.getId2Empresa())
-                .id3Empresa(billingDataDTO.getId3Empresa())
-                .condPgto(billingDataDTO.getCondPgto())
-                .fatAut(billingDataDTO.getFatAut())
-                .serie(billingDataDTO.getSerie())
-                .sigla(billingDataDTO.getSigla())
-                .idcOperacao(billingDataDTO.getIdcOperacao())
-                .idcNatureza(billingDataDTO.getIdcNatureza())
-                .tipoTitulo(billingDataDTO.getTipoTitulo())
+                .filial(billingDataDTO.getBranchNumber())
+                .c5Tipo(billingDataDTO.getSaleOrderType())
+                .id1Pessoa(ftp.getId1())
+                .id2Pessoa(ftp.getId2())
+                .id3Pessoa(ftp.getId3())
+                .condPgto(billingDataDTO.getPaymentCondition())
+                .fatAut(billingDataDTO.getAutomaticInvoicing())
+                .serie(billingDataDTO.getSeries())
+                .sigla(billingDataDTO.getSourceSystem())
+                .idcOperacao(billingDataDTO.getOperationNumber())
+                .idcNatureza(billingDataDTO.getFinancialNature())
+                .tipoTitulo(billingDataDTO.getFinSecuritiesType())
                 .titulos(titulos)
                 .itens(itens)
                 .build();

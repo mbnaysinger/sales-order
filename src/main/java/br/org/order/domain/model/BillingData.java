@@ -5,9 +5,9 @@ import java.util.List;
 public class BillingData {
     private final String filial;
     private final String c5Tipo;
-    private final Integer id1Empresa;
-    private final Integer id2Empresa;
-    private final Integer id3Empresa;
+    private final Long id1Pessoa;
+    private final int id2Pessoa;
+    private final int id3Pessoa;
     private final String condPgto;
     private final String fatAut;
     private final String serie;
@@ -21,9 +21,9 @@ public class BillingData {
     private BillingData(Builder builder) {
         this.filial = builder.filial;
         this.c5Tipo = builder.c5Tipo;
-        this.id1Empresa = builder.id1Empresa;
-        this.id2Empresa = builder.id2Empresa;
-        this.id3Empresa = builder.id3Empresa;
+        this.id1Pessoa = builder.id1Pessoa;
+        this.id2Pessoa = builder.id2Pessoa;
+        this.id3Pessoa = builder.id3Pessoa;
         this.condPgto = builder.condPgto;
         this.fatAut = builder.fatAut;
         this.serie = builder.serie;
@@ -42,9 +42,9 @@ public class BillingData {
     public static class Builder {
         private String filial;
         private String c5Tipo;
-        private Integer id1Empresa;
-        private Integer id2Empresa;
-        private Integer id3Empresa;
+        private Long id1Pessoa;
+        private int id2Pessoa;
+        private int id3Pessoa;
         private String condPgto;
         private String fatAut;
         private String serie;
@@ -65,18 +65,18 @@ public class BillingData {
             return this;
         }
 
-        public Builder id1Empresa(Integer id1Empresa) {
-            this.id1Empresa = id1Empresa;
+        public Builder id1Pessoa(Long id1Pessoa) {
+            this.id1Pessoa = id1Pessoa;
             return this;
         }
 
-        public Builder id2Empresa(Integer id2Empresa) {
-            this.id2Empresa = id2Empresa;
+        public Builder id2Pessoa(int id2Pessoa) {
+            this.id2Pessoa = id2Pessoa;
             return this;
         }
 
-        public Builder id3Empresa(Integer id3Empresa) {
-            this.id3Empresa = id3Empresa;
+        public Builder id3Pessoa(int id3Pessoa) {
+            this.id3Pessoa = id3Pessoa;
             return this;
         }
 
@@ -138,16 +138,16 @@ public class BillingData {
         return c5Tipo;
     }
 
-    public Integer getId1Empresa() {
-        return id1Empresa;
+    public Long getId1Pessoa() {
+        return id1Pessoa;
     }
 
-    public Integer getId2Empresa() {
-        return id2Empresa;
+    public int getId2Pessoa() {
+        return id2Pessoa;
     }
 
-    public Integer getId3Empresa() {
-        return id3Empresa;
+    public int getId3Pessoa() {
+        return id3Pessoa;
     }
 
     public String getCondPgto() {

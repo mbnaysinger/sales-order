@@ -7,19 +7,18 @@ public class BankSlipItemConverter {
 
     public BankSlipItem convertToEntity(BankSlipItemDTO itemDTO) {
         return new BankSlipItem.ItemBuilder()
-                .c6Filial(itemDTO.getC6Filial())
-                .c6Item(itemDTO.getC6Item())
-                .c6Num(itemDTO.getC6Num())
-                .c6Produto(itemDTO.getC6Produto())
-                .c6Qtdven(itemDTO.getC6Qtdven())
-                .c6Prcven(itemDTO.getC6Prcven())
-                .c6Valor(itemDTO.getC6Valor())
-                .c6Qtdlib(itemDTO.getC6Qtdlib())
-                .c6Tes(itemDTO.getC6Tes())
-                .c6Xconta(itemDTO.getC6Xconta())
-                .c6Xcc(itemDTO.getC6Xcc())
-                .c6Xitemc(itemDTO.getC6Xitemc())
-                .c6Xclvl(itemDTO.getC6Xclvl())
+                .c6Item(itemDTO.getItemQty())
+                .c6Num(itemDTO.getItemNumber())
+                .c6Produto(itemDTO.getProductNumber())
+                .c6Qtdven(itemDTO.getSoldQty())
+                .c6Prcven(itemDTO.getSaleValue())
+                .c6Valor(itemDTO.getItemValue())
+                .c6Qtdlib(itemDTO.getReleasedItemQty())
+                .c6Tes(itemDTO.getIotNumber())
+                .c6Xconta(itemDTO.getAccountNumber())
+                .c6Xcc(itemDTO.getXccNumber())
+                .c6Xitemc(itemDTO.getXicNumber())
+                .c6Xclvl(itemDTO.getXclvlNumber())
                 .build();
     }
 }

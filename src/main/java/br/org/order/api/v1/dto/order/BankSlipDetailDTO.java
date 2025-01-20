@@ -10,40 +10,44 @@ public class BankSlipDetailDTO {
 
     @NotNull(message = "O valor da parcela é obrigatório")
     @DecimalMin(value = "0.01", message = "O valor da parcela deve ser maior que zero")
-    private BigDecimal parcela;
+    private BigDecimal installment;
 
     @NotNull(message = "A data de vencimento é obrigatória")
-    private LocalDate dtVcto;
+    private LocalDate dueDate;
 
     @NotBlank(message = "O número da parcela é obrigatório")
-    private String numParc;
+    private String installmentNumber;
 
-    public BigDecimal getParcela() {
-        return parcela;
+    public BigDecimal getInstallment() {
+        return installment;
     }
 
-    public void setParcela(BigDecimal parcela) {
-        this.parcela = parcela;
+    public void setInstallment(BigDecimal installment) {
+        this.installment = installment;
     }
 
-    public LocalDate getDtVcto() {
-        return dtVcto;
+    public LocalDate getDueDate() {
+        return dueDate;
     }
 
-    public void setDtVcto(LocalDate dtVcto) {
-        this.dtVcto = dtVcto;
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
     }
 
-    public String getNumParc() { return numParc; }
+    public String getInstallmentNumber() {
+        return installmentNumber;
+    }
 
-    public void setNumParc(String numParc) { this.numParc = numParc; }
+    public void setInstallmentNumber(String installmentNumber) {
+        this.installmentNumber = installmentNumber;
+    }
 
     @Override
     public String toString() {
         return "BankSlipDetailDTO{" +
-                "parcela=" + parcela +
-                ", dtVcto=" + dtVcto +
-                ", numParc=" + numParc +
+                "installment=" + installment +
+                ", dueDate=" + dueDate +
+                ", installmentNumber='" + installmentNumber + '\'' +
                 '}';
     }
 }

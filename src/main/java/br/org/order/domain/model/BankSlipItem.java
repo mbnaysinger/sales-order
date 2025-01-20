@@ -3,7 +3,6 @@ package br.org.order.domain.model;
 import java.math.BigDecimal;
 
 public class BankSlipItem {
-    private final String c6Filial;
     private final Integer c6Item;
     private final Integer c6Num;
     private final Integer c6Produto;
@@ -18,7 +17,6 @@ public class BankSlipItem {
     private final String c6Xclvl;
 
     private BankSlipItem(ItemBuilder builder) {
-        this.c6Filial = builder.c6Filial;
         this.c6Item = builder.c6Item;
         this.c6Num = builder.c6Num;
         this.c6Produto = builder.c6Produto;
@@ -38,7 +36,6 @@ public class BankSlipItem {
     }
 
     public static class ItemBuilder {
-        private String c6Filial;
         private Integer c6Item;
         private Integer c6Num;
         private Integer c6Produto;
@@ -51,11 +48,6 @@ public class BankSlipItem {
         private String c6Xcc;
         private String c6Xitemc;
         private String c6Xclvl;
-
-        public ItemBuilder c6Filial(String c6Filial) {
-            this.c6Filial = c6Filial;
-            return this;
-        }
 
         public ItemBuilder c6Item(Integer c6Item) {
             this.c6Item = c6Item;
@@ -120,10 +112,6 @@ public class BankSlipItem {
         public BankSlipItem build() {
             return new BankSlipItem(this);
         }
-    }
-
-    public String getC6Filial() {
-        return c6Filial;
     }
 
     public Integer getC6Item() {
