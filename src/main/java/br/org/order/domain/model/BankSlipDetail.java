@@ -1,17 +1,18 @@
 package br.org.order.domain.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class BankSlipDetail {
 
-    private BigDecimal parcela;
-    private String dtVcto;
-    private String numParc;
+    private BigDecimal installment;     //parcelamento
+    private LocalDate dueDate;          //dtVencimento
+    private String installmentNumber;   //nroParcela
 
     private BankSlipDetail(Builder builder) {
-        this.parcela = builder.parcela;
-        this.dtVcto = builder.dtVcto;
-        this.numParc = builder.numParc;
+        this.installment = builder.installment;
+        this.dueDate = builder.dueDate;
+        this.installmentNumber = builder.installmentNumber;
     }
 
     public static Builder builder() {
@@ -19,22 +20,22 @@ public class BankSlipDetail {
     }
 
     public static class Builder {
-        private BigDecimal parcela;
-        private String dtVcto;
-        private String numParc;
+        private BigDecimal installment;
+        private LocalDate dueDate;
+        private String installmentNumber;
 
-        public Builder parcela(BigDecimal parcela) {
-            this.parcela = parcela;
+        public Builder installment(BigDecimal installment) {
+            this.installment = installment;
             return this;
         }
 
-        public Builder dtVcto(String dtVcto) {
-            this.dtVcto = dtVcto;
+        public Builder dueDate(LocalDate dueDate) {
+            this.dueDate = dueDate;
             return this;
         }
 
-        public Builder numParc(String numParc) {
-            this.numParc = numParc;
+        public Builder installmentNumber(String installmentNumber) {
+            this.installmentNumber = installmentNumber;
             return this;
         }
 
@@ -43,13 +44,13 @@ public class BankSlipDetail {
         }
     }
 
-    public BigDecimal getParcela() {
-        return parcela;
+    public BigDecimal getInstallment() {
+        return installment;
     }
 
-    public String getDtVcto() {
-        return dtVcto;
+    public LocalDate getDueDate() {
+        return dueDate;
     }
 
-    public String getNumParc() { return numParc; }
+    public String getInstallmentNumber() { return installmentNumber; }
 }

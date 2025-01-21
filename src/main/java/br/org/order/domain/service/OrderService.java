@@ -24,7 +24,7 @@ public class OrderService {
         return orderClient.callSoapClient(orderDto, token, origin);
     }
 
-    public Mono<OrderProcedureReturn> insereTitulo(BillingData bd) {
+    public Mono<OrderProcedureReturn> securitiesInsert(BillingData bd) {
         return opp.insereTitulo(bd);
     }
 }

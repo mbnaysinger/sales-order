@@ -13,18 +13,10 @@ public class BlobStorageConfig {
     @Value("${azure.storage.connection-string}")
     private String connectionString;
 
-    @Value("${azure.storage.container-invoice}")
-    private String containerName;
-
     @Bean
     public BlobServiceAsyncClient blobServiceAsyncClient() {
         return new BlobServiceClientBuilder()
                 .connectionString(connectionString)
                 .buildAsyncClient();
-    }
-
-    @Bean
-    public String containerName() {
-        return containerName;
     }
 }

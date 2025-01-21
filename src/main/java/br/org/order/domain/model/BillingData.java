@@ -3,36 +3,39 @@ package br.org.order.domain.model;
 import java.util.List;
 
 public class BillingData {
-    private final String filial;
-    private final String c5Tipo;
-    private final Long id1Pessoa;
-    private final int id2Pessoa;
-    private final int id3Pessoa;
-    private final String condPgto;
-    private final String fatAut;
-    private final String serie;
-    private final String sigla;
-    private final String idcOperacao;
-    private final String idcNatureza;
-    private final Integer tipoTitulo;
-    private final List<BankSlipDetail> titulos;
-    private final List<BankSlipItem> itens;
+
+    private String correlationId;
+    private String branchNumber;            //filial
+    private String saleOrderType;           //c5tipo
+    private String taxpayerId;
+    private String paymentCondition;
+    private String automaticInvoicing;
+    private String series;
+    private String sourceSystem;
+    private String operationNumber;         //idcOperacao
+    private String financialNature;         //idcNatureza
+    private Integer finSecuritiesType;      //tipoTitulo
+    private Instructions instructions;
+    private List<BankSlipDetail> financialSecurities;
+    private List<BankSlipItem> items;
+    private String callbackUrl;
 
     private BillingData(Builder builder) {
-        this.filial = builder.filial;
-        this.c5Tipo = builder.c5Tipo;
-        this.id1Pessoa = builder.id1Pessoa;
-        this.id2Pessoa = builder.id2Pessoa;
-        this.id3Pessoa = builder.id3Pessoa;
-        this.condPgto = builder.condPgto;
-        this.fatAut = builder.fatAut;
-        this.serie = builder.serie;
-        this.sigla = builder.sigla;
-        this.idcOperacao = builder.idcOperacao;
-        this.idcNatureza = builder.idcNatureza;
-        this.tipoTitulo = builder.tipoTitulo;
-        this.titulos = builder.titulos;
-        this.itens = builder.itens;
+        this.correlationId = builder.correlationId;
+        this.branchNumber = builder.branchNumber;
+        this.saleOrderType = builder.saleOrderType;
+        this.taxpayerId = builder.taxpayerId;
+        this.paymentCondition = builder.paymentCondition;
+        this.automaticInvoicing = builder.automaticInvoicing;
+        this.series = builder.series;
+        this.sourceSystem = builder.sourceSystem;
+        this.operationNumber = builder.operationNumber;
+        this.financialNature = builder.financialNature;
+        this.finSecuritiesType = builder.finSecuritiesType;
+        this.instructions = builder.instructions;
+        this.financialSecurities = builder.financialSecurities;
+        this.items = builder.items;
+        this.callbackUrl = builder.callbackUrl;
     }
 
     public static Builder builder() {
@@ -40,88 +43,94 @@ public class BillingData {
     }
 
     public static class Builder {
-        private String filial;
-        private String c5Tipo;
-        private Long id1Pessoa;
-        private int id2Pessoa;
-        private int id3Pessoa;
-        private String condPgto;
-        private String fatAut;
-        private String serie;
-        private String sigla;
-        private String idcOperacao;
-        private String idcNatureza;
-        private Integer tipoTitulo;
-        private List<BankSlipDetail> titulos;
-        private List<BankSlipItem> itens;
+        private String correlationId;
+        private String branchNumber;
+        private String saleOrderType;
+        private String taxpayerId;
+        private String paymentCondition;
+        private String automaticInvoicing;
+        private String series;
+        private String sourceSystem;
+        private String operationNumber;
+        private String financialNature;
+        private Integer finSecuritiesType;
+        private Instructions instructions;
+        private List<BankSlipDetail> financialSecurities;
+        private List<BankSlipItem> items;
+        private String callbackUrl;
 
-        public Builder filial(String filial) {
-            this.filial = filial;
+        public Builder correlationId(String correlationId) {
+            this.correlationId = correlationId;
             return this;
         }
 
-        public Builder c5Tipo(String c5Tipo) {
-            this.c5Tipo = c5Tipo;
+        public Builder branchNumber(String branchNumber) {
+            this.branchNumber = branchNumber;
             return this;
         }
 
-        public Builder id1Pessoa(Long id1Pessoa) {
-            this.id1Pessoa = id1Pessoa;
+        public Builder saleOrderType(String saleOrderType) {
+            this.saleOrderType = saleOrderType;
             return this;
         }
 
-        public Builder id2Pessoa(int id2Pessoa) {
-            this.id2Pessoa = id2Pessoa;
+        public Builder taxpayerId(String taxpayerId) {
+            this.taxpayerId = taxpayerId;
             return this;
         }
 
-        public Builder id3Pessoa(int id3Pessoa) {
-            this.id3Pessoa = id3Pessoa;
+        public Builder paymentCondition(String paymentCondition) {
+            this.paymentCondition = paymentCondition;
             return this;
         }
 
-        public Builder condPgto(String condPgto) {
-            this.condPgto = condPgto;
+        public Builder automaticInvoicing(String automaticInvoicing) {
+            this.automaticInvoicing = automaticInvoicing;
             return this;
         }
 
-        public Builder fatAut(String fatAut) {
-            this.fatAut = fatAut;
+        public Builder series(String series) {
+            this.series = series;
             return this;
         }
 
-        public Builder serie(String serie) {
-            this.serie = serie;
+        public Builder sourceSystem(String sourceSystem) {
+            this.sourceSystem = sourceSystem;
             return this;
         }
 
-        public Builder sigla(String sigla) {
-            this.sigla = sigla;
+        public Builder operationNumber(String operationNumber) {
+            this.operationNumber = operationNumber;
             return this;
         }
 
-        public Builder idcOperacao(String idcOperacao) {
-            this.idcOperacao = idcOperacao;
+        public Builder financialNature(String financialNature) {
+            this.financialNature = financialNature;
             return this;
         }
 
-        public Builder idcNatureza(String idcNatureza) {
-            this.idcNatureza = idcNatureza;
+        public Builder finSecuritiesType(Integer finSecuritiesType) {
+            this.finSecuritiesType = finSecuritiesType;
             return this;
         }
 
-        public Builder tipoTitulo(Integer tipoTitulo) {
-            this.tipoTitulo = tipoTitulo;
+        public Builder instructions(Instructions instructions) {
+            this.instructions = instructions;
             return this;
         }
 
-        public Builder titulos(List<BankSlipDetail> titulos) {
-            this.titulos = titulos;
+        public Builder financialSecurities(List<BankSlipDetail> financialSecurities) {
+            this.financialSecurities = financialSecurities;
             return this;
         }
 
-        public Builder itens(List<BankSlipItem> itens) {
-            this.itens = itens;
+        public Builder items(List<BankSlipItem> items) {
+            this.items = items;
+            return this;
+        }
+
+        public Builder callbackUrl(String callbackUrl) {
+            this.callbackUrl = callbackUrl;
             return this;
         }
 
@@ -130,59 +139,63 @@ public class BillingData {
         }
     }
 
-    public String getFilial() {
-        return filial;
+    public String getCorrelationId() {
+        return correlationId;
     }
 
-    public String getC5Tipo() {
-        return c5Tipo;
+    public String getBranchNumber() {
+        return branchNumber;
     }
 
-    public Long getId1Pessoa() {
-        return id1Pessoa;
+    public String getSaleOrderType() {
+        return saleOrderType;
     }
 
-    public int getId2Pessoa() {
-        return id2Pessoa;
+    public String getTaxpayerId() {
+        return taxpayerId;
     }
 
-    public int getId3Pessoa() {
-        return id3Pessoa;
+    public String getPaymentCondition() {
+        return paymentCondition;
     }
 
-    public String getCondPgto() {
-        return condPgto;
+    public String getAutomaticInvoicing() {
+        return automaticInvoicing;
     }
 
-    public String getFatAut() {
-        return fatAut;
+    public String getSeries() {
+        return series;
     }
 
-    public String getSerie() {
-        return serie;
+    public String getSourceSystem() {
+        return sourceSystem;
     }
 
-    public String getSigla() {
-        return sigla;
+    public String getOperationNumber() {
+        return operationNumber;
     }
 
-    public String getIdcOperacao() {
-        return idcOperacao;
+    public String getFinancialNature() {
+        return financialNature;
     }
 
-    public String getIdcNatureza() {
-        return idcNatureza;
+    public Integer getFinSecuritiesType() {
+        return finSecuritiesType;
     }
 
-    public Integer getTipoTitulo() {
-        return tipoTitulo;
+    public Instructions getInstructions() {
+        return instructions;
     }
 
-    public List<BankSlipDetail> getTitulos() {
-        return titulos;
+    public List<BankSlipDetail> getFinancialSecurities() {
+        return financialSecurities;
     }
 
-    public List<BankSlipItem> getItens() {
-        return itens;
+    public List<BankSlipItem> getItems() {
+        return items;
+    }
+
+    public String getCallbackUrl() {
+        return callbackUrl;
     }
 }

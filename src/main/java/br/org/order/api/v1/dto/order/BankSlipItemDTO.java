@@ -2,50 +2,43 @@ package br.org.order.api.v1.dto.order;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public class BankSlipItemDTO {
 
-    @NotNull(message = "itemQty (C6Item) não pode ser nulo")
-    @Positive(message = "itemQty (C6Item) deve ser um número positivo")
+    @NotNull(message = "bankslipitem.itemQty.required")
     private Integer itemQty;
 
     private Integer itemNumber;
 
-    @NotNull(message = "productNumber (C6Produto) não pode ser nulo")
-    @Positive(message = "productNumber (C6Produto) deve ser um número positivo")
+    @NotNull(message = "bankslipitem.productNumber.required")
     private Integer productNumber;
 
-    @NotNull(message = "soldQty (C6Qtdven) não pode ser nulo")
-    @Positive(message = "soldQty (C6Qtdven) deve ser um número positivo")
+    @NotNull(message = "bankslipitem.soldQty.required")
     private BigDecimal soldQty;
 
-    @NotNull(message = "saleValue (C6Prcven) não pode ser nulo")
-    @Positive(message = "saleValue (C6Prcven) deve ser um número positivo")
+    @NotNull(message = "bankslipitem.saleValue.required")
     private BigDecimal saleValue;
 
-    @NotNull(message = "itemValue (C6Valor) não pode ser nulo")
-    @Positive(message = "itemValue (C6Valor) deve ser um número positivo")
+    @NotNull(message = "bankslipitem.itemValue.required")
     private BigDecimal itemValue;
 
-    @NotNull(message = "releasedItemQty (C6Qtdlib) não pode ser nulo")
-    @Positive(message = "releasedItemQty (C6Qtdlib) deve ser um número positivo")
+    @NotNull(message = "bankslipitem.releasedItemQty.required")
     private BigDecimal releasedItemQty;
 
-    @NotBlank(message = "IotNumber (C6Tes) não pode ser vazio")
-    private String IotNumber; //Imput and output type (Protheus)
+    @NotBlank(message = "bankslipitem.iotNumber.required")
+    private String iotNumber; // Input and output type (Protheus)
 
-    @NotBlank(message = "accountNumber (C6Xconta) não pode ser vazio")
+    @NotBlank(message = "bankslipitem.accountNumber.required")
     private String accountNumber;
 
-    @NotBlank(message = "xccNumber (C6Xcc) não pode ser vazio")
+    @NotBlank(message = "bankslipitem.xccNumber.required")
     private String xccNumber;
 
-    @NotBlank(message = "xicNumber (C6Xitemc) não pode ser vazio")
+    @NotBlank(message = "bankslipitem.xicNumber.required")
     private String xicNumber;
 
-    @NotBlank(message = "xclvlNumber (C6Xclvl) não pode ser vazio")
+    @NotBlank(message = "bankslipitem.xclvlNumber.required")
     private String xclvlNumber;
 
     public Integer getItemQty() {
@@ -105,11 +98,11 @@ public class BankSlipItemDTO {
     }
 
     public String getIotNumber() {
-        return IotNumber;
+        return iotNumber;
     }
 
     public void setIotNumber(String iotNumber) {
-        IotNumber = iotNumber;
+        this.iotNumber = iotNumber;
     }
 
     public String getAccountNumber() {
@@ -154,7 +147,7 @@ public class BankSlipItemDTO {
                 ", saleValue=" + saleValue +
                 ", itemValue=" + itemValue +
                 ", releasedItemQty=" + releasedItemQty +
-                ", IotNumber='" + IotNumber + '\'' +
+                ", iotNumber='" + iotNumber + '\'' +
                 ", accountNumber='" + accountNumber + '\'' +
                 ", xccNumber='" + xccNumber + '\'' +
                 ", xicNumber='" + xicNumber + '\'' +

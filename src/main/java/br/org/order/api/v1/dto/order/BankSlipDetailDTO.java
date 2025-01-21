@@ -1,5 +1,8 @@
 package br.org.order.api.v1.dto.order;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -8,14 +11,16 @@ import java.time.LocalDate;
 
 public class BankSlipDetailDTO {
 
-    @NotNull(message = "O valor da parcela é obrigatório")
-    @DecimalMin(value = "0.01", message = "O valor da parcela deve ser maior que zero")
+    @NotNull(message = "bankslipdetail.installment.required")
+    @DecimalMin(value = "3.00", message = "bankslipdetail.installment.minimum")
     private BigDecimal installment;
 
-    @NotNull(message = "A data de vencimento é obrigatória")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @NotNull(message = "bankslipdetail.dueDate.required")
     private LocalDate dueDate;
 
-    @NotBlank(message = "O número da parcela é obrigatório")
+    @NotBlank(message = "bankslipdetail.installmentNumber.required")
     private String installmentNumber;
 
     public BigDecimal getInstallment() {

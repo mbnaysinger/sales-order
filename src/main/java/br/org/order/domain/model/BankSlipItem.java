@@ -3,32 +3,33 @@ package br.org.order.domain.model;
 import java.math.BigDecimal;
 
 public class BankSlipItem {
-    private final Integer c6Item;
-    private final Integer c6Num;
-    private final Integer c6Produto;
-    private final BigDecimal c6Qtdven;
-    private final BigDecimal c6Prcven;
-    private final BigDecimal c6Valor;
-    private final BigDecimal c6Qtdlib;
-    private final String c6Tes;
-    private final String c6Xconta;
-    private final String c6Xcc;
-    private final String c6Xitemc;
-    private final String c6Xclvl;
+
+    private Integer itemQty;                //c6Item
+    private Integer itemNumber;             //c6Num
+    private Integer productNumber;          //c6Produto
+    private BigDecimal soldQty;             //c6Qtdven
+    private BigDecimal saleValue;           //c6Prcven
+    private BigDecimal itemValue;           //c6Valor
+    private BigDecimal releasedItemQty;     //c6Qtdlib
+    private String iotNumber;               //Input and output type (Protheus TES)
+    private String accountNumber;           //c6Xconta
+    private String xccNumber;               //c6Xcc
+    private String xicNumber;               //c6Xitemc
+    private String xclvlNumber;             //c6Xclvl
 
     private BankSlipItem(ItemBuilder builder) {
-        this.c6Item = builder.c6Item;
-        this.c6Num = builder.c6Num;
-        this.c6Produto = builder.c6Produto;
-        this.c6Qtdven = builder.c6Qtdven;
-        this.c6Prcven = builder.c6Prcven;
-        this.c6Valor = builder.c6Valor;
-        this.c6Qtdlib = builder.c6Qtdlib;
-        this.c6Tes = builder.c6Tes;
-        this.c6Xconta = builder.c6Xconta;
-        this.c6Xcc = builder.c6Xcc;
-        this.c6Xitemc = builder.c6Xitemc;
-        this.c6Xclvl = builder.c6Xclvl;
+        this.itemQty = builder.itemQty;
+        this.itemNumber = builder.itemNumber;
+        this.productNumber = builder.productNumber;
+        this.soldQty = builder.soldQty;
+        this.saleValue = builder.saleValue;
+        this.itemValue = builder.itemValue;
+        this.releasedItemQty = builder.releasedItemQty;
+        this.iotNumber = builder.iotNumber;
+        this.accountNumber = builder.accountNumber;
+        this.xccNumber = builder.xccNumber;
+        this.xicNumber = builder.xicNumber;
+        this.xclvlNumber = builder.xclvlNumber;
     }
 
     public static ItemBuilder builder() {
@@ -36,76 +37,76 @@ public class BankSlipItem {
     }
 
     public static class ItemBuilder {
-        private Integer c6Item;
-        private Integer c6Num;
-        private Integer c6Produto;
-        private BigDecimal c6Qtdven;
-        private BigDecimal c6Prcven;
-        private BigDecimal c6Valor;
-        private BigDecimal c6Qtdlib;
-        private String c6Tes;
-        private String c6Xconta;
-        private String c6Xcc;
-        private String c6Xitemc;
-        private String c6Xclvl;
+        private Integer itemQty;
+        private Integer itemNumber;
+        private Integer productNumber;
+        private BigDecimal soldQty;
+        private BigDecimal saleValue;
+        private BigDecimal itemValue;
+        private BigDecimal releasedItemQty;
+        private String iotNumber;
+        private String accountNumber;
+        private String xccNumber;
+        private String xicNumber;
+        private String xclvlNumber;
 
-        public ItemBuilder c6Item(Integer c6Item) {
-            this.c6Item = c6Item;
+        public ItemBuilder itemQty(Integer itemQty) {
+            this.itemQty = itemQty;
             return this;
         }
 
-        public ItemBuilder c6Num(Integer c6Num) {
-            this.c6Num = c6Num;
+        public ItemBuilder itemNumber(Integer itemNumber) {
+            this.itemNumber = itemNumber;
             return this;
         }
 
-        public ItemBuilder c6Produto(Integer c6Produto) {
-            this.c6Produto = c6Produto;
+        public ItemBuilder productNumber(Integer productNumber) {
+            this.productNumber = productNumber;
             return this;
         }
 
-        public ItemBuilder c6Qtdven(BigDecimal c6Qtdven) {
-            this.c6Qtdven = c6Qtdven;
+        public ItemBuilder soldQty(BigDecimal soldQty) {
+            this.soldQty = soldQty;
             return this;
         }
 
-        public ItemBuilder c6Prcven(BigDecimal c6Prcven) {
-            this.c6Prcven = c6Prcven;
+        public ItemBuilder saleValue(BigDecimal saleValue) {
+            this.saleValue = saleValue;
             return this;
         }
 
-        public ItemBuilder c6Valor(BigDecimal c6Valor) {
-            this.c6Valor = c6Valor;
+        public ItemBuilder itemValue(BigDecimal itemValue) {
+            this.itemValue = itemValue;
             return this;
         }
 
-        public ItemBuilder c6Qtdlib(BigDecimal c6Qtdlib) {
-            this.c6Qtdlib = c6Qtdlib;
+        public ItemBuilder releasedItemQty(BigDecimal releasedItemQty) {
+            this.releasedItemQty = releasedItemQty;
             return this;
         }
 
-        public ItemBuilder c6Tes(String c6Tes) {
-            this.c6Tes = c6Tes;
+        public ItemBuilder iotNumber(String iotNumber) {
+            this.iotNumber = iotNumber;
             return this;
         }
 
-        public ItemBuilder c6Xconta(String c6Xconta) {
-            this.c6Xconta = c6Xconta;
+        public ItemBuilder accountNumber(String accountNumber) {
+            this.accountNumber = accountNumber;
             return this;
         }
 
-        public ItemBuilder c6Xcc(String c6Xcc) {
-            this.c6Xcc = c6Xcc;
+        public ItemBuilder xccNumber(String xccNumber) {
+            this.xccNumber = xccNumber;
             return this;
         }
 
-        public ItemBuilder c6Xitemc(String c6Xitemc) {
-            this.c6Xitemc = c6Xitemc;
+        public ItemBuilder xicNumber(String xicNumber) {
+            this.xicNumber = xicNumber;
             return this;
         }
 
-        public ItemBuilder c6Xclvl(String c6Xclvl) {
-            this.c6Xclvl = c6Xclvl;
+        public ItemBuilder xclvlNumber(String xclvlNumber) {
+            this.xclvlNumber = xclvlNumber;
             return this;
         }
 
@@ -114,51 +115,51 @@ public class BankSlipItem {
         }
     }
 
-    public Integer getC6Item() {
-        return c6Item;
+    public Integer getItemQty() {
+        return itemQty;
     }
 
-    public Integer getC6Num() {
-        return c6Num;
+    public Integer getItemNumber() {
+        return itemNumber;
     }
 
-    public Integer getC6Produto() {
-        return c6Produto;
+    public Integer getProductNumber() {
+        return productNumber;
     }
 
-    public BigDecimal getC6Qtdven() {
-        return c6Qtdven;
+    public BigDecimal getSoldQty() {
+        return soldQty;
     }
 
-    public BigDecimal getC6Prcven() {
-        return c6Prcven;
+    public BigDecimal getSaleValue() {
+        return saleValue;
     }
 
-    public BigDecimal getC6Valor() {
-        return c6Valor;
+    public BigDecimal getItemValue() {
+        return itemValue;
     }
 
-    public BigDecimal getC6Qtdlib() {
-        return c6Qtdlib;
+    public BigDecimal getReleasedItemQty() {
+        return releasedItemQty;
     }
 
-    public String getC6Tes() {
-        return c6Tes;
+    public String getIotNumber() {
+        return iotNumber;
     }
 
-    public String getC6Xconta() {
-        return c6Xconta;
+    public String getAccountNumber() {
+        return accountNumber;
     }
 
-    public String getC6Xcc() {
-        return c6Xcc;
+    public String getXccNumber() {
+        return xccNumber;
     }
 
-    public String getC6Xitemc() {
-        return c6Xitemc;
+    public String getXicNumber() {
+        return xicNumber;
     }
 
-    public String getC6Xclvl() {
-        return c6Xclvl;
+    public String getXclvlNumber() {
+        return xclvlNumber;
     }
 }

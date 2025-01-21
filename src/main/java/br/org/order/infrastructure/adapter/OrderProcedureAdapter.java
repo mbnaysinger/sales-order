@@ -5,6 +5,9 @@ import br.org.order.domain.model.BankSlipItem;
 import br.org.order.domain.model.BillingData;
 import br.org.order.domain.model.OrderProcedureReturn;
 import br.org.order.domain.port.OrderProcedurePort;
+import br.org.order.utils.TaxpayerFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -14,11 +17,14 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 @Component
 public class OrderProcedureAdapter implements OrderProcedurePort {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderProcedureAdapter.class);
     private final JdbcTemplate jdbcTemplate;
 
     public OrderProcedureAdapter(JdbcTemplate jdbcTemplate) {
@@ -44,18 +50,16 @@ public class OrderProcedureAdapter implements OrderProcedurePort {
 
             stmt.execute();
 
-            System.out.println(stmt.getString(5));
-
             String errorMessage = stmt.getString(5);
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 throw new RuntimeException("Erro na execução da procedure: " + errorMessage);
             }
 
             return OrderProcedureReturn.builder()
-                    .numTitulo(stmt.getString(1))
-                    .idIntegracao(stmt.getString(2))
-                    .mensagem(stmt.getString(3))
-                    .retorno(stmt.getInt(4))
+                    .securitiesNumber(stmt.getString(1))
+                    .integrationId(stmt.getString(2))
+                    .prcMessage(stmt.getString(3))
+                    .prcReturn(stmt.getInt(4))
                     .build();
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao executar procedure Oracle: " + e.getMessage(), e);
@@ -63,6 +67,7 @@ public class OrderProcedureAdapter implements OrderProcedurePort {
     }
 
     private String buildSqlStatement(BillingData bd) {
+        TaxpayerFormatter.FormattedTaxpayer ftp = TaxpayerFormatter.format(bd.getTaxpayerId());
         StringBuilder sql = new StringBuilder();
         sql.append("DECLARE ")
                 .append("    v_retorno NUMBER; ")
@@ -71,47 +76,47 @@ public class OrderProcedureAdapter implements OrderProcedurePort {
                 .append("    v_id_integra NUMBER; ")
                 .append("    v_titulos dda_iif.iif_pedido_venda_pck.tb_tit := dda_iif.iif_pedido_venda_pck.tb_tit(); ")
                 .append("    v_itens dda_iif.iif_pedido_venda_pck.tb_itens := dda_iif.iif_pedido_venda_pck.tb_itens(); ")
-                .append("    v_sigla VARCHAR2(8) := '").append(bd.getFilial()).append("'; ")
+                .append("    v_sigla VARCHAR2(8) := '").append(bd.getBranchNumber()).append("'; ")
                 .append("BEGIN ");
 
-        for (int i = 0; i < bd.getItens().size(); i++) {
-            BankSlipItem item = bd.getItens().get(i);
-            sql.append("    v_itens(").append(i+1).append(").c6_filial := '").append(bd.getFilial()).append("'; ")
-                    .append("    v_itens(").append(i+1).append(").c6_item := ").append(item.getC6Item()).append("; ")
-                    .append("    v_itens(").append(i+1).append(").c6_num := ").append(item.getC6Num() == null ? "null" : "'" + item.getC6Num() + "'").append("; ")
-                    .append("    v_itens(").append(i+1).append(").c6_produto := ").append(item.getC6Produto()).append("; ")
-                    .append("    v_itens(").append(i+1).append(").c6_qtdven := ").append(item.getC6Qtdven()).append("; ")
-                    .append("    v_itens(").append(i+1).append(").c6_prcven := ").append(item.getC6Prcven()).append("; ")
-                    .append("    v_itens(").append(i+1).append(").c6_valor := ").append(item.getC6Valor()).append("; ")
-                    .append("    v_itens(").append(i+1).append(").c6_qtdlib := ").append(item.getC6Qtdlib()).append("; ")
-                    .append("    v_itens(").append(i+1).append(").c6_tes := '").append(item.getC6Tes()).append("'; ")
-                    .append("    v_itens(").append(i+1).append(").c6_xconta := '").append(item.getC6Xconta()).append("'; ")
-                    .append("    v_itens(").append(i+1).append(").c6_xcc := '").append(item.getC6Xcc()).append("'; ")
-                    .append("    v_itens(").append(i+1).append(").c6_xitemc := '").append(item.getC6Xitemc()).append("'; ")
-                    .append("    v_itens(").append(i+1).append(").c6_xclvl := '").append(item.getC6Xclvl()).append("'; ");
+        for (int i = 0; i < bd.getItems().size(); i++) {
+            BankSlipItem item = bd.getItems().get(i);
+            sql.append("    v_itens(").append(i+1).append(").c6_filial := '").append(bd.getBranchNumber()).append("'; ")
+                    .append("    v_itens(").append(i+1).append(").c6_item := ").append(item.getItemQty()).append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_num := ").append(item.getItemNumber() == null ? "null" : "'" + item.getItemNumber() + "'").append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_produto := ").append(item.getProductNumber()).append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_qtdven := ").append(item.getSoldQty()).append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_prcven := ").append(item.getSaleValue()).append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_valor := ").append(item.getItemValue()).append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_qtdlib := ").append(item.getReleasedItemQty()).append("; ")
+                    .append("    v_itens(").append(i+1).append(").c6_tes := '").append(item.getIotNumber()).append("'; ")
+                    .append("    v_itens(").append(i+1).append(").c6_xconta := '").append(item.getAccountNumber()).append("'; ")
+                    .append("    v_itens(").append(i+1).append(").c6_xcc := '").append(item.getXccNumber()).append("'; ")
+                    .append("    v_itens(").append(i+1).append(").c6_xitemc := '").append(item.getXicNumber()).append("'; ")
+                    .append("    v_itens(").append(i+1).append(").c6_xclvl := '").append(item.getXclvlNumber()).append("'; ");
         }
 
-        for (int i = 0; i < bd.getTitulos().size(); i++) {
-            BankSlipDetail titulo = bd.getTitulos().get(i);
-            sql.append("    v_titulos(").append(i+1).append(").parcela := ").append(titulo.getParcela()).append("; ")
-                    .append("    v_titulos(").append(i+1).append(").dt_vcto := TO_DATE('").append(titulo.getDtVcto()).append("', 'DD-MM-YYYY'); ")
-                    .append("    v_titulos(").append(i+1).append(").parc_num := ").append(titulo.getNumParc()).append("; ");
+        for (int i = 0; i < bd.getFinancialSecurities().size(); i++) {
+            BankSlipDetail titulo = bd.getFinancialSecurities().get(i);
+            sql.append("    v_titulos(").append(i+1).append(").parcela := ").append(titulo.getInstallment()).append("; ")
+                    .append("    v_titulos(").append(i+1).append(").dt_vcto := TO_DATE('").append(dateSql(titulo.getDueDate())).append("', 'DD-MM-YYYY'); ")
+                    .append("    v_titulos(").append(i+1).append(").parc_num := ").append(titulo.getInstallmentNumber()).append("; ");
 
         }
 
         sql.append("    dda_apims.apims_titulos_cobranca_pck.insere_titulo( ")
                 .append("        v_sigla, ")
-                .append("        '").append(bd.getC5Tipo()).append("', ")
-                .append("        ").append(bd.getId1Pessoa()).append(", ")
-                .append("        ").append(bd.getId2Pessoa()).append(", ")
-                .append("        ").append(bd.getId3Pessoa()).append(", ")
-                .append("        '").append(bd.getCondPgto()).append("', ")
-                .append("        '").append(bd.getFatAut()).append("', ")
-                .append("        '").append(bd.getSerie()).append("', ")
-                .append("        '").append(bd.getSigla()).append("', ")
-                .append("        '").append(bd.getIdcOperacao()).append("', ")
-                .append("        '").append(bd.getIdcNatureza()).append("', ")
-                .append("        ").append(bd.getTipoTitulo()).append(", ")
+                .append("        '").append(bd.getSaleOrderType()).append("', ")
+                .append("        ").append(ftp.getId1()).append(", ")
+                .append("        ").append(ftp.getId2()).append(", ")
+                .append("        ").append(ftp.getId3()).append(", ")
+                .append("        '").append(bd.getPaymentCondition()).append("', ")
+                .append("        '").append(bd.getAutomaticInvoicing()).append("', ")
+                .append("        '").append(bd.getSeries()).append("', ")
+                .append("        '").append(bd.getSourceSystem()).append("', ")
+                .append("        '").append(bd.getOperationNumber()).append("', ")
+                .append("        '").append(bd.getFinancialNature()).append("', ")
+                .append("        ").append(bd.getFinSecuritiesType()).append(", ")
                 .append("        v_titulos, v_itens, v_num_titulo, v_id_integra, v_mensagem, v_retorno ")
                 .append("    ); ")
                 .append("    ? := v_num_titulo; ")
@@ -124,7 +129,12 @@ public class OrderProcedureAdapter implements OrderProcedurePort {
                 .append("        RAISE; ")
                 .append("END;");
 
-        System.out.println("Procedure: " + sql.toString());
+        LOGGER.debug("---------- Enriched Procedure Body: {}", sql.toString());
         return sql.toString();
+    }
+
+    private String dateSql(LocalDate dt) {
+        DateTimeFormatter f = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        return dt.format(f);
     }
 }

@@ -19,9 +19,6 @@ public class TaxpayerFormatter {
     }
 
     public static FormattedTaxpayer format(String taxpayerId) {
-        if (taxpayerId == null || taxpayerId.isEmpty()) {
-            throw new IllegalArgumentException("TaxpayerId é um campo obrigatório");
-        }
 
         taxpayerId = taxpayerId.replaceAll("[^0-9]", "");
         boolean isCpf = taxpayerId.length() == 11;

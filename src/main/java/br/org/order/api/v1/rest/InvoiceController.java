@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-@RestController("SalesOrderControllerV1")
+@RestController("InvoiceControllerV1")
 @RequestMapping("/invoice")
 public class InvoiceController {
     private static final Logger LOGGER = LoggerFactory.getLogger(InvoiceController.class);

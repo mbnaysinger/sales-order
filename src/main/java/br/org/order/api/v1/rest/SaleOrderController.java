@@ -1,17 +1,18 @@
 package br.org.order.api.v1.rest;
 
+import br.org.fiergs.common.model.exception.AccessForbiddenException;
 import br.org.order.api.v1.converter.BillingDataConverter;
+import br.org.order.api.v1.converter.OrderProcReturnConverter;
 import br.org.order.api.v1.dto.order.BillingDataDTO;
-import br.org.order.domain.model.BillingData;
-import br.org.order.domain.model.OrderProcedureReturn;
+import br.org.order.api.v1.dto.order.OrderProcedureReturnDTO;
 import br.org.order.domain.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,20 +26,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@RestController("InvoiceControllerV1")
+@RestController("SaleOrderControllerV1")
 @RequestMapping("/order")
-public class SalesOrderController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SalesOrderController.class);
+public class SaleOrderController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SaleOrderController.class);
     private static final String AUTHORIZATION_ERROR = "Acesso negado";
 
     private String apiKey;
     private final OrderService orderService;
     private final BillingDataConverter billingDataConverter;
+    private final OrderProcReturnConverter oprConverter;
 
-    public SalesOrderController(@Value("${app.bank-slip-api-key}") String apiKey,
-                                OrderService orderService) {
+    public SaleOrderController(@Value("${app.sale-order-key}") String apiKey,
+                               OrderService orderService, OrderProcReturnConverter oprConverter) {
         this.apiKey = apiKey;
         this.orderService = orderService;
+        this.oprConverter = oprConverter;
         this.billingDataConverter = new BillingDataConverter();
     }
 
@@ -79,12 +82,13 @@ public class SalesOrderController {
         return record;
     }
 
-    @PostMapping("/generate")
-    public Mono<ResponseEntity<OrderProcedureReturn>> billing(@Valid @RequestBody BillingDataDTO billingDataDTO) {
-        BillingData billingData = billingDataConverter.convertToEntity(billingDataDTO);
-
-        return orderService.insereTitulo(billingData)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.noContent().build());
+    @PostMapping("/")
+    public Mono<OrderProcedureReturnDTO> billing(@Valid @RequestBody BillingDataDTO billingDataDTO,
+                                                 @RequestHeader("X-API-Key") String apiKeyParam) {
+        return Mono.justOrEmpty(apiKey.equals(apiKeyParam) ? apiKey : null)
+                .switchIfEmpty(Mono.error(new AccessForbiddenException(AUTHORIZATION_ERROR)))
+                .map(validApiKey -> billingDataConverter.convertToEntity(billingDataDTO))
+                .flatMap(orderService::securitiesInsert)
+                .map(oprConverter::convertToDto);
     }
 }

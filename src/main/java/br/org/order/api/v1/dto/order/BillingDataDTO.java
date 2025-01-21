@@ -8,51 +8,50 @@ import java.util.List;
 
 public class BillingDataDTO {
 
-    @NotBlank(message = "correlationId não pode ser vazio")
+    @NotBlank(message = "billingdata.correlationId.required")
     private String correlationId;
 
-    @NotBlank(message = "branchNumber (Filial) não pode ser vazio")
+    @NotBlank(message = "billingdata.branchNumber.required")
     private String branchNumber;
 
-    @NotBlank(message = "saleOrderType (C5Tipo) não pode ser vazio")
+    @NotBlank(message = "billingdata.saleOrderType.required")
     private String saleOrderType;
 
-    @NotNull(message = "taxpayerId (Dados do Pagador) não pode ser nulo")
+    @NotNull(message = "billingdata.taxpayerId.required")
     private String taxpayerId;
 
-    @NotBlank(message = "paymentCondition (Condição de Pagamento) não pode ser vazio")
+    @NotBlank(message = "billingdata.paymentCondition.required")
     private String paymentCondition;
 
-    @NotBlank(message = "automatedInvoicing (Faturamento Automático não pode ser vazio")
+    @NotBlank(message = "billingdata.automaticInvoicing.required")
     private String automaticInvoicing;
 
-    @NotBlank(message = "Série não pode ser vazio")
+    @NotBlank(message = "billingdata.series.required")
     private String series;
 
-    @NotBlank(message = "sourceSystem (Sigla da aplicação de origem) não pode ser vazio")
+    @NotBlank(message = "billingdata.sourceSystem.required")
     private String sourceSystem;
 
-    @NotBlank(message = "operationNumber (Operação) não pode ser vazio")
+    @NotBlank(message = "billingdata.operationNumber.required")
     private String operationNumber;
 
-    @NotBlank(message = "financialNature (IDC Natureza) não pode ser vazio")
+    @NotBlank(message = "billingdata.financialNature.required")
     private String financialNature;
 
-    @NotNull(message = "finSecuritiesType (Tipo de Título) não pode ser nulo")
+    @NotNull(message = "billingdata.finSecuritiesType.required")
     private Integer finSecuritiesType;
 
     private InstructionsDTO instructions;
 
-    @NotEmpty(message = "Lista de Títulos não pode ser vazia")
+    @NotEmpty(message = "billingdata.financialSecurities.required")
     @Valid
     private List<BankSlipDetailDTO> financialSecurities;
 
-    @NotEmpty(message = "Lista de Itens não pode ser vazia")
+    @NotEmpty(message = "billingdata.items.required")
     @Valid
     private List<BankSlipItemDTO> items;
 
-    private String paymentStatusCallbackUrl;
-    private String availableInvoiceCallbackUrl;
+    private String callbackUrl;
 
     public String getCorrelationId() {
         return correlationId;
@@ -166,20 +165,12 @@ public class BillingDataDTO {
         this.items = items;
     }
 
-    public String getPaymentStatusCallbackUrl() {
-        return paymentStatusCallbackUrl;
+    public String getCallbackUrl() {
+        return callbackUrl;
     }
 
-    public void setPaymentStatusCallbackUrl(String paymentStatusCallbackUrl) {
-        this.paymentStatusCallbackUrl = paymentStatusCallbackUrl;
-    }
-
-    public String getAvailableInvoiceCallbackUrl() {
-        return availableInvoiceCallbackUrl;
-    }
-
-    public void setAvailableInvoiceCallbackUrl(String availableInvoiceCallbackUrl) {
-        this.availableInvoiceCallbackUrl = availableInvoiceCallbackUrl;
+    public void setCallbackUrl(String callbackUrl) {
+        this.callbackUrl = callbackUrl;
     }
 
     @Override
@@ -199,8 +190,7 @@ public class BillingDataDTO {
                 ", instructions=" + instructions +
                 ", financialSecurities=" + financialSecurities +
                 ", items=" + items +
-                ", paymentStatusCallbackUrl='" + paymentStatusCallbackUrl + '\'' +
-                ", availableInvoiceCallbackUrl='" + availableInvoiceCallbackUrl + '\'' +
+                ", callbackUrl='" + callbackUrl + '\'' +
                 '}';
     }
 }
