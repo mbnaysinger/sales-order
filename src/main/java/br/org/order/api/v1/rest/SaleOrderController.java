@@ -38,11 +38,12 @@ public class SaleOrderController {
     private final OrderProcReturnConverter oprConverter;
 
     public SaleOrderController(@Value("${app.sale-order-key}") String apiKey,
-                               OrderService orderService, OrderProcReturnConverter oprConverter) {
+                               OrderService orderService, BillingDataConverter billingDataConverter,
+                               OrderProcReturnConverter oprConverter) {
         this.apiKey = apiKey;
         this.orderService = orderService;
+        this.billingDataConverter = billingDataConverter;
         this.oprConverter = oprConverter;
-        this.billingDataConverter = new BillingDataConverter();
     }
 
     @GetMapping("/list")
@@ -87,7 +88,7 @@ public class SaleOrderController {
                                                  @RequestHeader("X-API-Key") String apiKeyParam) {
         return Mono.justOrEmpty(apiKey.equals(apiKeyParam) ? apiKey : null)
                 .switchIfEmpty(Mono.error(new AccessForbiddenException(AUTHORIZATION_ERROR)))
-                .map(validApiKey -> billingDataConverter.convertToEntity(billingDataDTO))
+                .map(validApiKey -> billingDataConverter.convertToModel(billingDataDTO))
                 .flatMap(orderService::securitiesInsert)
                 .map(oprConverter::convertToDto);
     }

@@ -1,0 +1,42 @@
+{
+  "automatic_invoicing": "S",
+  "branch_number": "01RS0001",
+  "callback_url": "teste.com.br",
+  "correlation_id": "DNS 23546",
+  "fin_securities_type": 10701,
+  "financial_nature": 10001004,
+  "financial_securities": [
+    {
+      "due_date": "2025-01-30",
+      "installment": 300,
+      "installment_number": "1"
+    }
+  ],
+  "instructions": {
+    "instruction1": "Teste 1",
+    "instruction2": "Teste 2",
+    "instruction_payer": "Teste Maike"
+  },
+    "items": [
+    {
+      "account_number": "41010401003001",
+      "iot_number": "501",
+      "item_number": null,
+      "item_qty": 1,
+      "item_value": 300,
+      "product_number": 10055199,
+      "released_item_qty": 1,
+      "sale_value": 300,
+      "sold_qty": 1,
+      "xcc_number": "23020205001001",
+      "xclvl_number": "99999999",
+      "xic_number": "30103010501002"
+    }
+  ],
+  "operation_number": "3",
+  "payment_condition": "PAR",
+  "sale_order_type": "N",
+  "series": "NFS",
+  "source_system": "SOL",
+  "taxpayer_id": "07089375000119"
+}

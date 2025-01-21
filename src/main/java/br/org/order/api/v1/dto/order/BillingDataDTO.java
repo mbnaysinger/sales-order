@@ -1,5 +1,7 @@
 package br.org.order.api.v1.dto.order;
 
+import br.org.order.api.v1.dto.PersonDTO;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -16,9 +18,6 @@ public class BillingDataDTO {
 
     @NotBlank(message = "billingdata.saleOrderType.required")
     private String saleOrderType;
-
-    @NotNull(message = "billingdata.taxpayerId.required")
-    private String taxpayerId;
 
     @NotBlank(message = "billingdata.paymentCondition.required")
     private String paymentCondition;
@@ -40,6 +39,9 @@ public class BillingDataDTO {
 
     @NotNull(message = "billingdata.finSecuritiesType.required")
     private Integer finSecuritiesType;
+
+    @Valid
+    private PersonDTO payer;
 
     private InstructionsDTO instructions;
 
@@ -75,14 +77,6 @@ public class BillingDataDTO {
 
     public void setSaleOrderType(String saleOrderType) {
         this.saleOrderType = saleOrderType;
-    }
-
-    public String getTaxpayerId() {
-        return taxpayerId;
-    }
-
-    public void setTaxpayerId(String taxpayerId) {
-        this.taxpayerId = taxpayerId;
     }
 
     public String getPaymentCondition() {
@@ -149,6 +143,14 @@ public class BillingDataDTO {
         this.instructions = instructions;
     }
 
+    public PersonDTO getPayer() {
+        return payer;
+    }
+
+    public void setPayer(PersonDTO payer) {
+        this.payer = payer;
+    }
+
     public List<BankSlipDetailDTO> getFinancialSecurities() {
         return financialSecurities;
     }
@@ -179,14 +181,14 @@ public class BillingDataDTO {
                 "correlationId='" + correlationId + '\'' +
                 ", branchNumber='" + branchNumber + '\'' +
                 ", saleOrderType='" + saleOrderType + '\'' +
-                ", taxpayerId='" + taxpayerId + '\'' +
                 ", paymentCondition='" + paymentCondition + '\'' +
                 ", automaticInvoicing='" + automaticInvoicing + '\'' +
                 ", series='" + series + '\'' +
                 ", sourceSystem='" + sourceSystem + '\'' +
-                ", operationNumbber='" + operationNumber + '\'' +
+                ", operationNumber='" + operationNumber + '\'' +
                 ", financialNature='" + financialNature + '\'' +
                 ", finSecuritiesType=" + finSecuritiesType +
+                ", payer=" + payer +
                 ", instructions=" + instructions +
                 ", financialSecurities=" + financialSecurities +
                 ", items=" + items +

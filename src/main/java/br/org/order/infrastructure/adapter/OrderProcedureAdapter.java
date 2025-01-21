@@ -67,7 +67,7 @@ public class OrderProcedureAdapter implements OrderProcedurePort {
     }
 
     private String buildSqlStatement(BillingData bd) {
-        TaxpayerFormatter.FormattedTaxpayer ftp = TaxpayerFormatter.format(bd.getTaxpayerId());
+        TaxpayerFormatter.FormattedTaxpayer ftp = TaxpayerFormatter.format(bd.getTaxpayerIdAsString());
         StringBuilder sql = new StringBuilder();
         sql.append("DECLARE ")
                 .append("    v_retorno NUMBER; ")

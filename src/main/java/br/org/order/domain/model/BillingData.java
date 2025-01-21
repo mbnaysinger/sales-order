@@ -2,12 +2,14 @@ package br.org.order.domain.model;
 
 import java.util.List;
 
+import br.org.fiergs.person.model.TaxpayerId;
+
 public class BillingData {
 
     private String correlationId;
     private String branchNumber;            //filial
     private String saleOrderType;           //c5tipo
-    private String taxpayerId;
+    private TaxpayerId taxpayerId;
     private String paymentCondition;
     private String automaticInvoicing;
     private String series;
@@ -46,7 +48,7 @@ public class BillingData {
         private String correlationId;
         private String branchNumber;
         private String saleOrderType;
-        private String taxpayerId;
+        private TaxpayerId taxpayerId;
         private String paymentCondition;
         private String automaticInvoicing;
         private String series;
@@ -75,7 +77,9 @@ public class BillingData {
         }
 
         public Builder taxpayerId(String taxpayerId) {
-            this.taxpayerId = taxpayerId;
+            this.taxpayerId = null == taxpayerId
+                    ? null
+                    : TaxpayerId.of(taxpayerId);
             return this;
         }
 
@@ -151,8 +155,12 @@ public class BillingData {
         return saleOrderType;
     }
 
-    public String getTaxpayerId() {
-        return taxpayerId;
+    public TaxpayerId getTaxpayerId() {
+        return this.taxpayerId;
+    }
+
+    public String getTaxpayerIdAsString() {
+        return null == this.taxpayerId ? null : this.taxpayerId.getNumber();
     }
 
     public String getPaymentCondition() {

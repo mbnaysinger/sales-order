@@ -2,11 +2,7 @@ package br.org.order.api.v1.converter;
 
 import br.org.order.api.v1.dto.order.BillingDataDTO;
 import br.org.order.api.v1.dto.order.InstructionsDTO;
-import br.org.order.domain.model.BankSlipDetail;
-import br.org.order.domain.model.BankSlipItem;
-import br.org.order.domain.model.BillingData;
-import br.org.order.domain.model.Instructions;
-import br.org.order.utils.TaxpayerFormatter;
+import br.org.order.domain.model.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,14 +13,18 @@ public class BillingDataConverter {
 
     private final BankSlipDetailConverter bankSlipDetailConverter;
     private final BankSlipItemConverter bankSlipItemConverter;
+    private final PersonConverter personConverter;
 
-    public BillingDataConverter() {
-        this.bankSlipDetailConverter = new BankSlipDetailConverter();
-        this.bankSlipItemConverter = new BankSlipItemConverter();
+    public BillingDataConverter(BankSlipDetailConverter bankSlipDetailConverter,
+                                BankSlipItemConverter bankSlipItemConverter,
+                                PersonConverter personConverter) {
+
+        this.bankSlipDetailConverter = bankSlipDetailConverter;
+        this.bankSlipItemConverter = bankSlipItemConverter;
+        this.personConverter = personConverter;
     }
 
-    public BillingData convertToEntity(BillingDataDTO billingDataDTO) {
-//        TaxpayerFormatter.FormattedTaxpayer ftp = TaxpayerFormatter.format(billingDataDTO.getTaxpayerId());
+    public BillingData convertToModel(BillingDataDTO billingDataDTO) {
 
         List<BankSlipDetail> BankSlipDetails = billingDataDTO.getFinancialSecurities().stream()
                 .map(bankSlipDetailConverter::convertToEntity)
@@ -34,10 +34,12 @@ public class BillingDataConverter {
                 .map(bankSlipItemConverter::convertToEntity)
                 .collect(Collectors.toList());
 
+        Person p = personConverter.convert(billingDataDTO.getPayer());
+
         return new BillingData.Builder()
                 .branchNumber(billingDataDTO.getBranchNumber())
                 .saleOrderType(billingDataDTO.getSaleOrderType())
-                .taxpayerId(billingDataDTO.getTaxpayerId())
+                .taxpayerId(p.getTaxpayerIdAsString())
                 .paymentCondition(billingDataDTO.getPaymentCondition())
                 .automaticInvoicing(billingDataDTO.getAutomaticInvoicing())
                 .series(billingDataDTO.getSeries())
