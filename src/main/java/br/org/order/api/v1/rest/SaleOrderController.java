@@ -3,22 +3,18 @@ package br.org.order.api.v1.rest;
 import br.org.fiergs.common.model.exception.AccessForbiddenException;
 import br.org.order.api.v1.converter.BillingDataConverter;
 import br.org.order.api.v1.converter.OrderProcReturnConverter;
-import br.org.order.api.v1.dto.order.BillingDataDTO;
-import br.org.order.api.v1.dto.order.OrderProcedureReturnDTO;
 import br.org.order.domain.service.OrderService;
+import br.org.order.domain.service.FinantialService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController("SaleOrderControllerV1")
-@RequestMapping("/order")
+@RequestMapping("/v1/order")
 public class SaleOrderController {
     private static final Logger LOGGER = LoggerFactory.getLogger(SaleOrderController.class);
     private static final String AUTHORIZATION_ERROR = "Acesso negado";
@@ -36,14 +32,17 @@ public class SaleOrderController {
     private final OrderService orderService;
     private final BillingDataConverter billingDataConverter;
     private final OrderProcReturnConverter oprConverter;
+    private final FinantialService ss;
+
 
     public SaleOrderController(@Value("${app.sale-order-key}") String apiKey,
                                OrderService orderService, BillingDataConverter billingDataConverter,
-                               OrderProcReturnConverter oprConverter) {
+                               OrderProcReturnConverter oprConverter, FinantialService ss) {
         this.apiKey = apiKey;
         this.orderService = orderService;
         this.billingDataConverter = billingDataConverter;
         this.oprConverter = oprConverter;
+        this.ss = ss;
     }
 
     @GetMapping("/list")
@@ -83,13 +82,15 @@ public class SaleOrderController {
         return record;
     }
 
-    @PostMapping("/")
-    public Mono<OrderProcedureReturnDTO> billing(@Valid @RequestBody BillingDataDTO billingDataDTO,
-                                                 @RequestHeader("X-API-Key") String apiKeyParam) {
-        return Mono.justOrEmpty(apiKey.equals(apiKeyParam) ? apiKey : null)
-                .switchIfEmpty(Mono.error(new AccessForbiddenException(AUTHORIZATION_ERROR)))
-                .map(validApiKey -> billingDataConverter.convertToModel(billingDataDTO))
-                .flatMap(orderService::securitiesInsert)
-                .map(oprConverter::convertToDto);
+    @GetMapping("/debtor/{taxpayerid}")
+    public Mono<Boolean> listInvoices(@RequestHeader("X-API-Key") String apiKeyParam,
+                                      @RequestParam String taxpayerid) {
+        return Mono.defer(() -> {
+            if (apiKeyParam.equals(apiKey)) {
+                return ss.debtorConsult(taxpayerid);
+            } else {
+                return Mono.error(new AccessForbiddenException(AUTHORIZATION_ERROR));
+            }
+        });
     }
 }
